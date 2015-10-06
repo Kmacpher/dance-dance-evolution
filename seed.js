@@ -47,7 +47,7 @@ function createStepCharts(parsedSM) {
 
     return Promise.all(promises)
         .then(function(charts) {
-            // console.log('charts are ', charts);
+
             var idObj = {};
             charts.forEach(function(chart) {
                 idObj[chart.difficulty] = chart._id;
@@ -60,8 +60,10 @@ function createStepCharts(parsedSM) {
                 stepChart: idObj[key],
                 level: parsedSM.charts[key].level,
                 grooveRadar: parsedSM.charts[key].grooveRadar
-              }
+              };
             }
+
+            
 
             return Song.create({
                 title: parsedSM.metadata.TITLE,
@@ -76,7 +78,7 @@ function createStepCharts(parsedSM) {
         });
 
 
-};
+}
 
 var seedSongs = function(cb) {
 
@@ -90,6 +92,7 @@ var seedSongs = function(cb) {
         return createStepCharts(data);
     });
 
+    // console.log(smFiles);
     return Promise.all(smFiles);
 
 };
@@ -99,7 +102,7 @@ connectToDb.then(function() {
 
     seedSongs()
     .then( function () {
-        console.log(chalk.green('Seeding songs was super-effective!'))
+        console.log(chalk.green('Seeding songs was super-effective!'));
         process.kill(0);
     });
 

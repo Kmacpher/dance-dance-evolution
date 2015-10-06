@@ -19,8 +19,10 @@ function readSM(title) {
 		var sections = data.split(sectionSplit);
 
 		var metadataStr = sections[0].split('\r\n').filter(function(line) {
-			return line.charAt(0) === '#';
+			return line.trim().charAt(0) === '#';
 		});
+
+		console.log(metadataStr);
 		var metadata = {};
 		metadataStr.forEach(function(line) {
 			var lineParse = metadataRegex.exec(line);
@@ -41,6 +43,7 @@ function readSM(title) {
 				charts[chartData.difficulty] = chartData;
 			}
 		}
+
 		return {
 			charts: charts,
 			metadata: metadata
@@ -97,7 +100,8 @@ function getChartData(section) {
 module.exports = {
 	readSM: readSM
 };
-//readSM(process.argv[2]);
+
+// readSM(process.argv[2]);
 
 
 
