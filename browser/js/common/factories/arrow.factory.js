@@ -19,14 +19,30 @@ app.factory('ArrowFactory', function () {
 
     Arrow.prototype.animate = function (bpm, chIndex, mIndex, mNotes) {
         if (!tl) throw Error('Make a timeline first');
-        var animationLength = (130 * 4)/bpm;
+        var animationLength = (150 * 4)/bpm;
         var measureTime = 240 / bpm;
         var timePerBeat = measureTime / mNotes;
         var startTime = chIndex * measureTime + mIndex * timePerBeat;
         this.startTime = startTime;
-        this.crossingTime = startTime + animationLength;
-        this.toneTime = this.crossingTime - 0.67239;
         tl.to(this.el, animationLength * 1.5, {top: '-50vh', ease:Linear.easeNone}, startTime);
+        // console.log(`top ${animationLength * 1.5}s ease linear ${startTime}s`)
+        // this.el.css('transition', `top ${animationLength * 1.5}s linear ${startTime}s`);
+        // var el = this.el;
+        // setTimeout(function () {
+        //     el.css('top', '-50vh');
+        // }, 0)
+        // var stopPos;
+        // setTimeout(function () {
+        //     var pos = el.css('top');
+        //     console.log(pos);
+        //     stopPos = pos;
+        //     el.css('top', pos);
+        // }, startTime * 1000 + 1500)
+
+        // setTimeout(function () {
+        //     el.css('top', `${stopPos} + `);
+        // }, startTime * 1000 + 3000)
+        // this.el.css('top', '10vh');
         // .to(this.el, animationLength/2, {top: '-50vh', ease:Linear.easeNone}, startTime);
     }
 
