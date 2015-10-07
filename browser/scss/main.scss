@@ -10,6 +10,47 @@ body {
   background: #fdfdfd;
 }
 
+.wrap {
+  margin: 0 auto;
+  max-width: 75%;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.btn.round {
+  border-radius: 24px;
+}
+
+.btn.outline {
+  background: none;
+  padding: 12px 22px;
+}
+
+.btn-primary.outline {
+  border: 2px solid#2DDEFF;
+  // outline: 1px solid #FFFFFF;
+  color: #2DDEFF;
+}
+
+.btn-primary.outline:hover, .btn-primary.outline:focus, .btn-primary.outline:active, .btn-primary.outline.active, .open > .dropdown-toggle.btn-primary {
+    color: white;
+    border-color: white;
+    background: black;
+}
+.btn-primary.outline:active, .btn-primary.outline.active {
+    border-color: #007299;
+    color: #007299;
+    box-shadow: none;
+}
+
+#video-landing {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  overflow: hidden;
+}
 
 @mixin clearfix {
   &:after {
@@ -27,4 +68,6 @@ body {
 
 @import 'directives/main';
 @import 'login/main';
+@import 'signup/main';
+@import 'chooseSong/main';
 @import 'animation'

@@ -1,0 +1,40 @@
+<!-- <body class="align"> -->
+
+  <div class="site__container">
+
+    <div class="grid__container">
+
+      <form action="" method="post" class="form form--signup form--font" id="signup-form" name="signupForm" ng-submit="signupForm.$valid && sendSignup(signup)">
+
+        <alert type="danger" ng-show="error">
+            {{ error }}
+        </alert>
+
+        <div class="form__field">
+          <label class="fontawesome-user" for="signup__username"><span class="hidden">Username</span></label>
+          <input id="signup__username" ng-model="signup.username" type="text" class="form__input" placeholder="Username" required>
+        </div>
+
+        <div class="form__field">
+          <label class="fontawesome-user" for="signup__email"><span class="hidden">Email</span></label>
+          <input id="signup__email" ng-model="signup.email" type="text" class="form__input" placeholder="Email" required>
+        </div>
+
+        <div class="form__field">
+          <label class="fontawesome-lock" for="signup__password"><span class="hidden">Password</span></label>
+          <input id="signup__password" ng-model="signup.password" type="password" class="form__input" placeholder="Password" required>
+        </div>
+
+        <div class="form__field">
+          <input type="submit" value="Signup">
+        </div>
+
+      </form>
+
+      <p class="text--center">Already a member? <a ui-sref='login'>Login Here</a> <span class="fontawesome-arrow-right"></span></p>
+
+    </div>
+
+  </div>
+
+<!-- </body> -->
