@@ -69,6 +69,7 @@ function readSM(title) {
 
 
 function getChartData(section) {
+
     var data = {};
     var lastgroove = grooveRegex.exec(section)[0];
     var splitSection = section.split(grooveRegex);
@@ -83,7 +84,7 @@ function getChartData(section) {
         }).map(function(line) {
             return line.split('');
         });
-    })
+    });
     data.stepchart = beats;
 
     chartInfo = chartInfo.trim().split('\r\n');

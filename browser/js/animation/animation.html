@@ -26,7 +26,7 @@
         <div class="col-sm-3 up-arrow-col"></div>
         <div class="col-sm-3 right-arrow-col"></div>
       </div>
-      <form>
+      <!-- <form>
         <div class='form-group'>
           <label>Choose Song</label>
           <select ng-model='choice.song' ng-change='getDifficulties()'>
@@ -39,8 +39,9 @@
             <option ng-repeat="level in choice.levels" value="{{level}}">{{level}}</option>
           </select>
         </div>
-      </form>
+      </form> -->
       <div class="row">
+        <button ng-click="setUpSong()" >SET IT UP</button>
         <button ng-click="runInit()" ng-show="ready">START SHIZ</button>
       </div>
     </div>

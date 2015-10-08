@@ -25,4 +25,12 @@ app.controller('SignupCtrl', function ($scope, AuthService, $state) {
 
     };
 
+    window.addEventListener('keydown', onArrowKey);
+        function onArrowKey(event) {
+            if(event.keyCode === 27) {
+                window.removeEventListener('keydown', onArrowKey);
+                $state.go('mainMenu');
+            };
+    };
+
 });

@@ -9,11 +9,6 @@
 		-ms-transform: translate3d(0, 0, 0);
 		transform-style:preserve-3d;
 		transform: translate3d(0, 0, 0);
-
-		/*-webkit-backface-visibility: hidden;
-		-moz-backface-visibility: hidden;
-		-ms-backface-visibility:hidden;
-		backface-visibility:hidden;*/
 	}
 
 	#contentContainer
@@ -23,8 +18,8 @@
 		margin-top:-23%;
 		left:50%;
 		top:50%;
-		width:1000px;
-		height:1000px;
+		min-width:1000px;
+		min-height:1000px;
 	}
 
 	#carouselContainer
@@ -34,8 +29,8 @@
 		margin-top:-500px;
 		left:50%;
 		top:50%;
-		width:1000px;
-		height:1000px;
+		min-width:1000px;
+		min-height:1000px;
 	}
 
 	.carouselItem
@@ -84,4 +79,33 @@
 	.carouselItemInner:hover
 	{
 		background-color:rgba(212, 65, 121, .75);
+	}
+
+	.loadingScreen {
+		width: inherit;
+		height: inherit;
+		background-color: black;
+		border: 5px solid white;
+	}
+
+	//note for later - change the widths and heights of the parent elements to be %
+	.loadingSphere {
+		margin-left: 35%;
+		margin-top: 10%;
+	}
+
+	.choose-level {
+		font-size: 32px;
+		color: #b2b2b2;
+		position: absolute;
+		top: 18%;
+		right: 5%;
+		width: 15%;
+
+	}
+
+	.selected {
+		font-size: 32px;
+		font-weight: bold;
+		color: white;
 	}
