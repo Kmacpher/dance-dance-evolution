@@ -9,6 +9,57 @@ var Song = mongoose.model('Song');
 var StepChart = mongoose.model('StepChart');
 
 
+function createStepCharts(parsedSM) {
+    var promises = [];
+    console.log('parsed!: ',parsedSM);
+    for (var difficulty in parsedSM.charts) {
+        console.log('chart title', parsedSM.metadata.TITLE);
+        promises.push(StepChart.create({
+            title: parsedSM.metadata.TITLE,
+            difficulty: difficulty,
+            chart: parsedSM.charts[difficulty].stepchart
+        }));
+    }
+
+    Promise.all(promises)
+        .then(function(charts) {
+
+            var idObj = {};
+            charts.forEach(function(chart) {
+                idObj[chart.difficulty] = chart._id;
+            });
+
+            var chartsObj = {};
+
+            for(var key in idObj) {
+              chartsObj[key] = {
+                stepChart: idObj[key],
+                level: parsedSM.charts[key].level,
+                grooveRadar: parsedSM.charts[key].grooveRadar
+              }
+            }
+
+            return Song.create({
+                title: parsedSM.metadata.TITLE,
+                artist: parsedSM.metadata.ARTIST,
+                bpms: parsedSM.metadata.BPMS,
+                stops: parsedSM.metadata.STOPS,
+                displayBpm: parsedSM.metadata.DISPLAYBPM,
+                offset: parsedSM.metadata.OFFSET,
+                music: parsedSM.metadata.MUSIC,
+                Charts: chartsObj
+            });
+        }).then(function(song) {
+            console.log('song:',song);
+        console.log('song created!');
+      }).then(null, function(err) {
+        console.error('You had an error!', err);
+      });
+
+
+}
+
+
 router.get('/', function(req, res, next) {
     Song.find({}).then(function(songs) {
         res.send(songs);
@@ -76,55 +127,7 @@ router.post('/upload', multipartMiddleware, function(req, res, next) {
 
 });
 
-function createStepCharts(parsedSM) {
-    var promises = [];
-    console.log('parsed!: ',parsedSM);
-    for (var difficulty in parsedSM.charts) {
-        console.log('chart title', parsedSM.metadata.TITLE);
-        promises.push(StepChart.create({
-            title: parsedSM.metadata.TITLE,
-            difficulty: difficulty,
-            chart: parsedSM.charts[difficulty].stepchart
-        }));
-    }
 
-    Promise.all(promises)
-        .then(function(charts) {
-
-            var idObj = {};
-            charts.forEach(function(chart) {
-                idObj[chart.difficulty] = chart._id;
-            });
-
-            var chartsObj = {};
-
-            for(var key in idObj) {
-              chartsObj[key] = {
-                stepChart: idObj[key],
-                level: parsedSM.charts[key].level,
-                grooveRadar: parsedSM.charts[key].grooveRadar
-              }
-            }
-
-            return Song.create({
-                title: parsedSM.metadata.TITLE,
-                artist: parsedSM.metadata.ARTIST,
-                bpms: parsedSM.metadata.BPMS,
-                stops: parsedSM.metadata.STOPS,
-                displayBpm: parsedSM.metadata.DISPLAYBPM,
-                offset: parsedSM.metadata.OFFSET,
-                music: parsedSM.metadata.MUSIC,
-                Charts: chartsObj
-            });
-        }).then(function(song) {
-            console.log('song:',song);
-        console.log('song created!');
-      }).then(null, function(err) {
-        console.error('You had an error!', err);
-      });
-
-
-}
 
 
 

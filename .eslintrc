@@ -39,7 +39,13 @@
     "_": 1,
     "inject": 1,
     "expect": 1,
-    "sinon": 1
+    "sinon": 1,
+    "$": 1,
+    "TweenMax": 1,
+    "Expo": 1,
+    "TimelineLite": 1,
+    "Linear": 1,
+    "Quint": 1
   },
 
   "rules": {

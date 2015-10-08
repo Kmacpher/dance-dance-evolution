@@ -53,16 +53,7 @@ app.factory('ArrowFactory', function () {
         })
     }
 
-    var getStopTime = function (thisBeat, stops) {
-        return stops.reduce(function (time, stop) {
-            if (thisBeat >= stop.beat) {
-                time += stop.duration;
-            }
-            return time;
-        }, 0);
-    };
-
-    Arrow.addBpmChanges = function (bpms, animationOffset, beatTime, stops) {
+    Arrow.addBpmChanges = function (bpms, animationOffset, beatTime) {
         bpms.forEach(bpm => {
             if (bpm.beat === 0) return;
             this.addBPMChange(animationOffset + beatTime * bpm.beat, bpm.bpm/bpms[0].bpm);
@@ -82,15 +73,6 @@ app.factory('ArrowFactory', function () {
     }
 
 
-    Arrow.indexToDir = function (n) {
-        var dict = {
-            0: 'left',
-            1: 'down',
-            2: 'up',
-            3: 'right'
-        }
-        return dict[n]
-    }
     var indexToDir = {
       '0': 'left',
       '1': 'down',
@@ -112,16 +94,15 @@ app.factory('ArrowFactory', function () {
             measure.forEach(function (line, lineIndex) {
                 line.forEach(function (maybeArrow, index) {
                     if (maybeArrow !== "0") { //FIX to account for freezes : D
-                        var dir = Arrow.indexToDir(index);
+                        var dir = indexToDir[index];
                         var color;
-                        var thing = lineIndex / notes * 16;
-                        if (thing % 4 === 0) {
-                            color = 'purple';
-                        } else if (thing % 2 === 0) {
-                            color = 'orange';
-                        } else {
-                            color = 'red';
-                        }
+                        var note = lineIndex / notes;
+
+                        if ((note * 4) % 1 === 0) color = 'purple';
+                        else if (((note - 1/8)*4) % 1 === 0) color = 'orange';
+                        else if (((note - 1/16)*8) % 1 === 0) color = 'red';
+                        else color = 'green';
+                        
                         var arrow = new Arrow(dir, 1, color);
                         arrow.animate(bpm, measureIndex, lineIndex, notes);
                         obj[indexToDir[index]].unshift(arrow);
@@ -129,14 +110,6 @@ app.factory('ArrowFactory', function () {
                 });
             });
         });
-
-        Arrow.ARROW_KEYS = {
-          left: '37',
-          down: '40',
-          up: '38',
-          right: '39'
-        };
-
 
         return obj;
     };

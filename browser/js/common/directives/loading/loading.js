@@ -1,8 +1,7 @@
-app.directive('loading', function ($rootScope, AuthService, AUTH_EVENTS, $state) {
+app.directive('loading', function () {
 
     return {
         restrict: 'E',
-        templateUrl: 'js/common/directives/loading/loading.html',
-        link: function (scope) {}
+        templateUrl: 'js/common/directives/loading/loading.html'
     }
 });
