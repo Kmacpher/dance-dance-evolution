@@ -57,6 +57,22 @@ app.config(function($stateProvider) {
                         tone.start();
                         startTime = Date.now() - $scope.currentSong.offset*1000;
                         addListener();
+
+
+                        var videoOffset = ($scope.config.ARROW_SPEED/$scope.mainBPM + Number($scope.currentSong.offset))*1000;
+
+                            if ($scope.currentSong.title === 'Caramelldansen') {
+                                $scope.videoSrc = '/video/Caramelldansen.mp4';
+                                videoOffset += 1000;
+                            }
+                            else if ($scope.currentSong.title === 'Sandstorm') {
+                                $scope.videoSrc = '/video/Darude - Sandstorm.mp4';
+                            }
+                            setTimeout(function() {
+                                var video = document.getElementById('bg-video');
+                                video.play();
+                            }, videoOffset);
+
                     }
 
                     Tone.Buffer.onload = function () {

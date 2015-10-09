@@ -18,6 +18,7 @@ app.controller('MainMenuCtrl', function ($scope, $state) {
     audio.play();
   };
 
+  var menuLength = $('.menuXParent').children().length;
 
   window.addEventListener('keydown', onArrowKey)
   function onArrowKey(event) {
@@ -26,18 +27,18 @@ app.controller('MainMenuCtrl', function ($scope, $state) {
 
     if(event.which === 40) {
       play();
-      activeNumber = activeNumber === 5? 1 : activeNumber + 1;
+      activeNumber = activeNumber === menuLength? 1 : activeNumber + 1;
       active.removeClass("activeChoice");
       $('#option' + activeNumber).addClass("activeChoice");
     } else if(event.which === 38) {
       play();
-      activeNumber = activeNumber === 1? 5 : activeNumber - 1;
+      activeNumber = activeNumber === 1? menuLength : activeNumber - 1;
       active.removeClass("activeChoice");
       $('#option' + activeNumber).addClass("activeChoice");
     } else if(event.keyCode === 13) {
       var uiState = active[0].outerHTML.split('"');
       window.removeEventListener('keydown', onArrowKey);
-      $state.go(uiState[5]);
+      $state.go(uiState[menuLength]);
     } else if(event.keyCode === 27) {
       window.removeEventListener('keydown', onArrowKey);
       $state.go('home');

@@ -9,17 +9,30 @@
 		-ms-transform: translate3d(0, 0, 0);
 		transform-style:preserve-3d;
 		transform: translate3d(0, 0, 0);
+
+		/*-webkit-backface-visibility: hidden;
+		-moz-backface-visibility: hidden;
+		-ms-backface-visibility:hidden;
+		backface-visibility:hidden;*/
+	}
+
+	h1 {
+  		font-family: 'EchoDeco';
+  		src: url('/img/font/EchoDeco.ttf');
+  		color: #ea4c88;
+  		font-size: 11vh;
+  		text-align: center;
 	}
 
 	#contentContainer
 	{
 		position:absolute;
 		margin-left:-500px;
-		margin-top:-23%;
+		margin-top:-13%;
 		left:50%;
-		top:50%;
-		min-width:1000px;
-		min-height:1000px;
+		top:45%;
+		width:1000px;
+		height:1000px;
 	}
 
 	#carouselContainer
@@ -42,19 +55,10 @@
 		top:50%;
 		margin-left:-160px;
 		margin-top:-90px;
-		background-color:rgba(234, 76, 136, .75);
-		color:#eee;
-		font-size:30px;
-		left:50%;
-		top:50%;
-		margin-left:-160px;
-		margin-top:-90px;
-		text-align:center;
+		visibility:hidden;
 
 		p {
-			position: relative;
-  			top: 50%;
-  			transform: translateY(-50%);
+			margin-top: -15px;
 		}
 	}
 
@@ -98,14 +102,21 @@
 		font-size: 32px;
 		color: #b2b2b2;
 		position: absolute;
-		top: 18%;
+		top: 14%;
 		right: 5%;
 		width: 15%;
-
+		div {
+			max-height: 9vh;
+		}
 	}
 
 	.selected {
 		font-size: 32px;
 		font-weight: bold;
 		color: white;
+	}
+
+	.activeSong {
+		background-color: #E9A92E;
+		border:10px solid #E9A92E;
 	}

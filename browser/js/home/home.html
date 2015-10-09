@@ -1,11 +1,12 @@
 <div>
-  <video id='video-landing' autoplay loop>
+  <video muted id='video-landing' autoplay loop>
     <source src='/video/landingPage5.mp4' type='video/mp4'></source>
   </video>
 </div>
-<div class='wrap' style='padding-top: 236.5px'>
-  <button class='btn btn-primary outline round' ui-sref='mainMenu'>Main Menu</button>
-  <button class='btn btn-primary outline round' ui-sref='login'>Login</button>
-  <button class='btn btn-primary outline round' ui-sref='chooseSong'>Dance Now</button>
-  <button class='btn btn-primary outline round' ui-sref='signup'>Signup</button>
+<div class='wrap homeMenu' style='padding-top: 236.5px'>
+
+  <button id="option1" class='btn btn-primary outline round activeHome'><div ui-sref='mainMenu'>Main Menu</div></button>
+  <button id="option2" class='btn btn-primary outline round'><div ui-sref='chooseSong'>Dance Now</div></button>
+  <button id="option3" class='btn btn-primary outline round'><div ui-sref='login'>Login</div></button>
+  <button id="option4" class='btn btn-primary outline round'><div ui-sref='signup'>Signup</div></button>
 </div>

@@ -101,7 +101,7 @@ app.factory('ArrowFactory', function () {
                         if ((note * 4) % 1 === 0) color = 'purple';
                         else if (((note - 1/8)*4) % 1 === 0) color = 'orange';
                         else if (((note - 1/16)*8) % 1 === 0) color = 'red';
-                        else color = 'red';
+                        else color = 'green';
                         
                         var arrow = new Arrow(dir, 1, color);
                         arrow.animate(bpm, measureIndex, lineIndex, notes);

@@ -1,5 +1,3 @@
-
-
 	<div class='loadingScreen' ng-show='loading'>
 		<loading></loading>
 	</div>
@@ -7,14 +5,18 @@
 	<div ng-hide='loading'>
 		<header>
 			<h1>Dance Dance Evolution</h1>
-			<h3>Choose your beat</h3>
 		</header>
 		<div id="contentContainer" class="trans3d" >
 			<section id="carouselContainer" class="trans3d" ng-hide='loading'>
-				<figure id="item{{$index + 1}}" class="carouselItem trans3d" ng-click='getDifficulties(song)' ng-repeat="song in songs"><p>{{song.title}}</p></figure>
-				
-
+				<figure id="item{{$index + 1}}" class="carouselItem trans3d" ng-click='getDifficulties(song)' ng-repeat="song in songs">
+					<span class="carouselItemInner trans3d">
+						<p>
+							{{song.title}}
+						</p>
+					</span>
+				</figure>	
 			</section>
+			
 			<div class='choose-level'>
 				  <div id='level{{$index}}' class='difficulty' ng-click='loadSong(level)' ng-repeat="level in choice.levels">{{level}}</div>
 				</div>
