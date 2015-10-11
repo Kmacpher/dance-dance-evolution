@@ -223,10 +223,6 @@ app.factory('CarouselFactory', function($state, ToneFactory) {
 
         }
 
-        //class selected that lights up the choice
-        //up will go up the index
-        //down will go down the list
-        //enter takes the selected with class
     }
 
     function findTarget() {
