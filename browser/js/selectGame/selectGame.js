@@ -16,7 +16,7 @@ app.controller('SelectGameCtrl', function($scope, $state, ToneFactory) {
       ToneFactory.play(fx);
     };
 
-    var menuLength = $('.menuXParent').children().length;
+    var menuLength = $('.selectMenu').children().length;
 
     window.addEventListener('keydown', onArrowKey);
 
@@ -37,9 +37,9 @@ app.controller('SelectGameCtrl', function($scope, $state, ToneFactory) {
         } else if (event.keyCode === 13) {
             play('start');
             var uiState = active[0].outerHTML.split('"');
-            console.log(uiState);
             window.removeEventListener('keydown', onArrowKey);
-            $state.go(uiState[5]);
+            var num = parseInt(uiState[5].match(/\d/g)[0], 10);
+            $state.go('chooseSong', {players: num});
         } else if (event.keyCode === 27) {
             play('back');
             window.removeEventListener('keydown', onArrowKey);
