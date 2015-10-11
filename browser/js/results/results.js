@@ -5,16 +5,23 @@ app.config(function ($stateProvider) {
         templateUrl: 'js/results/results.html',
         controller: 'ResultsCtrl',
         resolve: {
-          results: function($stateParams) {
-            // return with a promise that will resolve with the results from the ScoreFactory;
+          results: function(ScoreFactory) {
+            return ScoreFactory.finalScore();
+          },
+          maxCombo: function(ScoreFactory) {
+            return ScoreFactory.getMaxCombo();
           }
         }
     });
 
 });
 
-app.controller('ResultsCtrl', function ($scope, $state, results) {
+app.controller('ResultsCtrl', function ($scope, $state, results, maxCombo) {
   $scope.results = results;
+  $scope.maxCombo = maxCombo;
+
   console.log("This are the results: ", results);
+  console.log("Your max combo was ", maxCombo);
+
 
 });
