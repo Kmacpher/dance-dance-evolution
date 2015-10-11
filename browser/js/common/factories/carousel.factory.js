@@ -120,12 +120,6 @@ app.factory('CarouselFactory', function($state, ToneFactory) {
             leftX < 10 ? leftX += 2 : leftX;
             rightX > 0 ? leftX = rightX = 0 : rightX = 0;
             mouseX = (window.innerWidth * .5) * .0004 * leftX;
-        } else if (event.keyCode === 38) {
-            console.log("UP KEY HIT: ", event)
-
-        } else if (event.keyCode === 40) {
-            console.log("DOWN KEY HIT: ", event)
-
         } else if (event.keyCode === 27) {
             ToneFactory.play('back');
             TweenMax.set($(`#item${target}`), {
@@ -223,10 +217,6 @@ app.factory('CarouselFactory', function($state, ToneFactory) {
 
         }
 
-        //class selected that lights up the choice
-        //up will go up the index
-        //down will go down the list
-        //enter takes the selected with class
     }
 
     function findTarget() {
@@ -244,11 +234,6 @@ app.factory('CarouselFactory', function($state, ToneFactory) {
         }
         target !== 1 ? target = songs + 2 - target : target;
     }
-
-    // function freezeCarousel () {
-    //  console.log('should freeze')
-    //  addX = 0;
-    // }
 
     return {
         init: init,

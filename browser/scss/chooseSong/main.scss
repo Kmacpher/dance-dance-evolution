@@ -17,7 +17,7 @@
 	}
 
 	h1 {
-			margin-top: 3.5%;
+		margin-top: 3.5%;
   		font-family: 'EchoDeco';
   		src: url('/img/font/EchoDeco.ttf');
   		color: #ea4c88;
@@ -60,6 +60,7 @@
 
 		p {
 			margin-top: -15px;
+			font-family: petit;
 		}
 	}
 
@@ -99,17 +100,36 @@
 		margin-top: 10%;
 	}
 
+	// .choose-level {
+	// 	font-size: 32px;
+	// 	color: #b2b2b2;
+	// 	position: absolute;
+	// 	// top: -5vh;
+	// 	top: 0%;
+	// 	right: 5%;
+	// 	width: 15%;
+	// 	div {
+	// 		max-height: 9vh;
+	// 	}
+	// }
+	@font-face {
+    	font-family: 'petit';
+    	src: url('/img/font/petit.otf');
+	}
+	
 	.choose-level {
-		font-size: 32px;
+		font-family: petit;
+		font-size: 30px;
 		color: #b2b2b2;
-		position: absolute;
-		top: 3%;
-		right: 5%;
+		position: relative;
+		top: -6.5vh;
+		left: 80%;
 		width: 15%;
 		div {
-			max-height: 9vh;
+			max-height: 6vh;
 		}
 	}
+
 
 	#chart-info {
 		font-size: 32px;

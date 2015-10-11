@@ -1,0 +1,60 @@
+@font-face {
+  font-family: 'petit';
+  src: url('/img/font/petit.ttf');
+}
+
+.resultsContainer {
+	width: 80%;
+	margin: auto;
+	padding-top: 3%;
+	max-height: 100%;
+}
+
+.hitBreakdown {
+	display: inline-block;
+	color: white;
+	float: left;
+	padding-top: 2%;
+	width: 50.5%;
+	margin-left: -0.5%;
+}
+
+.scoreBreakdown {
+	display: inline-block;
+	color: white;
+	float: right;
+	padding-top: 2%;
+	width: 50%;
+	margin-right: -0.5%;
+}
+
+h1 {
+	padding-top: 5%
+}
+
+.head {
+	margin-left: 25%;
+	text-decoration: underline;
+}
+
+.accuracyDesc{
+	font-family: 'EchoDeco';
+  	src: url('/img/font/EchoDeco.ttf');
+  	font-weight: lighter;
+	font-size: 4.5vh;
+	color: #ea4c88;
+	display: inline;
+}
+
+h1 {
+	margin-top: -3%;
+	font-size: 12vh;
+	font-weight: 100;
+}
+
+h2 {
+	font-family: petit;
+	font-size: 4.5vh;
+	font-weight: lighter;
+	margin-left: 2%;
+}

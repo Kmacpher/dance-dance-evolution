@@ -1,15 +1,26 @@
+@font-face {
+    font-family: 'gunmetal';
+    src: url('/img/font/gunmetal.ttf');
+}
+
+@font-face {
+    font-family: 'petit';
+    src: url('/img/font/petit.otf');
+}
+
 .view-score {
-  	// font-family: 'EchoDeco';
-  	// src: url('/img/font/EchoDeco.ttf');
-  	font-family: Arial;
-  	// font-weight: lighter;
-	color: white;
-	//color: #ea4c88;
-	font-size: 9vh;
-	z-index: 100;
-	text-align: center;
-	opacity: 1;
-	// width: 10px;
-	position: absolute;
-	bottom: 10px;
+	font-family: gunmetal;
+    // font-family: Arial;
+    // font-weight: lighter;
+    color: white;
+    //color: #ea4c88;
+    font-size: 8vh;
+    z-index: 1;
+    // text-align: center;
+    top: 65%;
+    left: 40%;
+    opacity: 1;
+    // width: 10px;
+    position: absolute;
+    bottom: 10px;
 }

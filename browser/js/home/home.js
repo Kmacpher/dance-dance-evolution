@@ -52,7 +52,6 @@ app.controller('HomeController', function($rootScope, $scope, $state, AuthServic
 	} else if(event.keyCode === 13) {
     play('start');
 		var uiState = active[0].outerHTML.split('"');
-		console.log(uiState);
 		window.removeEventListener('keydown', onArrowKey);
 		$state.go(uiState[5]);
 	};
