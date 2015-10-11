@@ -17,7 +17,6 @@ app.controller('SelectGameCtrl', function($scope, $state, ToneFactory) {
     };
 
     var menuLength = $('.menuXParent').children().length;
-    console.log(menuLength);
 
     window.addEventListener('keydown', onArrowKey);
 
