@@ -1,0 +1,26 @@
+<div class='resultsContainer'>
+<span>
+	
+    <h1>Results</h1>
+    <div class="hitBreakdown">
+    	<h2 class="head">Accuracy Breakdown: </h2>
+	    <h2>You were {{ player1.accuracyCount.Flawless / player1.totalArrowGuy * 100 | number : 1 }}% <span class="accuracyDesc">Flawless</span></h2>
+	    <h2>You were {{ player1.accuracyCount.Marvelous / player1.totalArrowGuy * 100 | number : 1 }}% <span class="accuracyDesc">Marvelous</span></h2>
+	    <h2>You were {{ player1.accuracyCount.Great / player1.totalArrowGuy * 100 | number : 1 }}% <span class="accuracyDesc">Great</span></h2>
+	    <h2>You were {{ (player1.totalArrowGuy - player1.accuracyCount.Flawless - player1.accuracyCount.Marvelous - player1.accuracyCount.Great) / player1.totalArrowGuy * 100 | number : 1 }}% <span class="accuracyDesc">awful</span></h2>
+		<h2>_________________________</h2>
+	    <h2>Hit Ratio: {{percent1 * 100| number : 1}}%</h2>
+	    <h2>Max Combo: {{player1.maxCombo | number}}</h2>
+    </div>
+    <div class="scoreBreakdown">
+	    <h2 class="head">Score Breakdown:</h2>
+		<h2><span class="accuracyDesc">Flawless</span>: {{player1.accuracyCount.Flawless | number}} x 10 = {{player1.accuracyCount.Flawless * 10 | number}}</h2>
+		<h2><span class="accuracyDesc">Marvelous</span>: {{player1.accuracyCount.Marvelous | number}} x 8 = {{player1.accuracyCount.Marvelous * 8 | number}}</h2>
+		<h2><span class="accuracyDesc">Great</span>: {{player1.accuracyCount.Great | number}} x 6 = {{player1.accuracyCount.Great * 6 | number}}</h2>
+		<h2><span class="accuracyDesc">Miss</span>: {{player1.totalArrowGuy - player1.accuracyCount.Flawless - player1.accuracyCount.Marvelous - player1.accuracyCount.Great | number}} x 0 = 0</h2>
+		<h2>_________________________</h2>
+		<h2>Unscaled Score: {{player1.score | number}}</h2>
+		<h2>Scaled Score: {{score1 | number}}</h2>  	
+    </div>
+</span>
+</div>

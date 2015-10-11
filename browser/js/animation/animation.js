@@ -60,19 +60,19 @@ app.config(function($stateProvider) {
                                 tone.stop();
                                 arrowWorker.terminate();
                                 ArrowFactory.killTimeline();
-                                $state.go('chooseSong');
+                                $state.go('results');
                             }, 3000);
                         }
 
                         if(e.data.hit) {
                             arrows[e.data.dir][e.data.index].el.remove();
-                            console.log('difff is ', e.data.diff);
-                            $scope.score = ScoreFactory.addScore(e.data.diff);
-                            $scope.combo = ScoreFactory.addCombo(e.data.diff);
+                            $scope.score = ScoreFactory.addScore1(e.data.diff);
+                            $scope.combo = ScoreFactory.addCombo1(e.data.diff);
+                            console.log(ScoreFactory.getPlayer1());
                         } else {
                             // arrows[e.data.dir][e.data.index].el.css("opacity", 0.1);
-                            $scope.combo = ScoreFactory.resetCombo(e.data.accuracy);
-                            ScoreFactory.addScore(e.data.diff);
+                            $scope.combo = ScoreFactory.resetCombo1(e.data.accuracy);
+                            ScoreFactory.addScore1(e.data.diff);
                         };
                         //console.log($scope.score);
                         $scope.$digest();
@@ -89,8 +89,8 @@ app.config(function($stateProvider) {
 
                         var stopSong = function (e) {
                             if(e.keyCode === 48) {
-                                console.log(ScoreFactory.finalScore());
-                                console.log(ScoreFactory.accuracyCountGuy);
+                                console.log(ScoreFactory.finalScore1());
+                                console.log(ScoreFactory.player1Guy.accuracyCount);
                             };
                             var dir = keyCodeToDir[e.keyCode];
 
