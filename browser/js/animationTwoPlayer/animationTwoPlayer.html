@@ -1,0 +1,72 @@
+<div class='loadingScreen' ng-hide='ready'>
+  <loading></loading>
+</div>
+
+
+
+<div class='animContainer' ng-show='ready'>
+  <!-- <iframe width="560" height="315" src="https://www.youtube.com/embed/2HQaBWziYvY" frameborder="0" allowfullscreen></iframe> -->
+  
+  <!-- <img id='bg-image' ng-src="{{imageSrc}}" /> -->
+
+  <video id='bg-video' ng-src="{{videoSrc}}" muted loop>
+    <!-- <source ng-src="{{videoSrc}}" type='video/mp4'></source> -->
+  </video>
+</div>
+
+
+<div class='trackContainer' ng-show='ready'>
+  <score ng-show='ready'></score>
+  <div class='track'>
+  </div>
+</div>
+
+
+
+
+<div class="container" ng-show='ready'>
+  <div class="row">
+    <div class="col-sm-6 player-1">
+      <div class="row">
+        <div class="col-sm-3 left-arrow-col arrow-col-0 arrow-col">
+            <div class="arrowPlace"><img src="/img/arrows/left-blank.png"></img></div>
+
+        </div>
+        <div class="col-sm-3 down-arrow-col arrow-col-1 arrow-col">
+            <div class="arrowPlace"><img src="/img/arrows/down-blank.png"></img></div>
+
+        </div>
+        <div class="col-sm-3 up-arrow-col arrow-col-2 arrow-col">
+            <div class="arrowPlace"><img src="/img/arrows/up-blank.png"></img></div>
+
+        </div>
+        <div class="col-sm-3 right-arrow-col arrow-col-3 arrow-col">
+            <div class="arrowPlace"><img src="/img/arrows/right-blank.png"></img></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-sm-6 player-2">
+      <div class="row">
+        <div class="col-sm-3 left-arrow-col arrow-col-0 arrow-col">
+            <div class="arrowPlace"><img src="/img/arrows/left-blank.png"></img></div>
+
+        </div>
+        <div class="col-sm-3 down-arrow-col arrow-col-1 arrow-col">
+            <div class="arrowPlace"><img src="/img/arrows/down-blank.png"></img></div>
+
+        </div>
+        <div class="col-sm-3 up-arrow-col arrow-col-2 arrow-col">
+            <div class="arrowPlace"><img src="/img/arrows/up-blank.png"></img></div>
+
+        </div>
+        <div class="col-sm-3 right-arrow-col arrow-col-3 arrow-col">
+            <div class="arrowPlace"><img src="/img/arrows/right-blank.png"></img></div>
+        </div>
+      </div>
+    </div>
+    
+
+
+  </div>
+</div>
