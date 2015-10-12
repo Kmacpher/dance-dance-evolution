@@ -93,11 +93,11 @@ app.config(function($stateProvider) {
                                 console.log(ScoreFactory.accuracyCountGuy);
                             };
                             var dir = keyCodeToDir[e.keyCode];
-                            
+
                             if (dir) e.preventDefault();
                             else return;
 
-                            if (dir === 'escape') { 
+                            if (dir === 'escape') {
                                 ToneFactory.play('back');
                                 /** kill music (ToneFactory), animation timeline, and worker; go back to select screen */
                                 tone.stop();
