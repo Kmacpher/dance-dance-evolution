@@ -34,7 +34,7 @@ app.config(function($stateProvider) {
 
                     var startTime = 0;
                     ArrowFactory.makeTimeline();
-                    var arrows = ArrowFactory.makeArrows(stepChart.chart, $scope.mainBPM);
+                    var arrows = ArrowFactory.makeArrows(stepChart.chart, $scope.mainBPM, 1);
                     ArrowFactory.addStops($scope.currentSong.stops, $scope.config.ARROW_TIME, $scope.config.BEAT_TIME);
                     ArrowFactory.addBpmChanges($scope.currentSong.bpms, $scope.config.ARROW_TIME, $scope.config.BEAT_TIME, $scope.currentSong.stops);
                     var arrowWorker = new Worker('/js/animation/animationWorker.js');

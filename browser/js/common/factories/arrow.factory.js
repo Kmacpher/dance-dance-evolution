@@ -87,7 +87,7 @@ app.factory('ArrowFactory', function () {
     };
 
 
-    Arrow.makeArrows = function (stepChart, bpm) {
+    Arrow.makeArrows = function (stepChart, bpm, players) {
 
         var obj = {
             right: [],
@@ -109,7 +109,8 @@ app.factory('ArrowFactory', function () {
                         else if (((note - 1/16)*8) % 1 === 0) color = 'red';
                         else color = 'green';
                         
-                        var arrow = new Arrow(dir, 1, color);
+                        var arrow = new Arrow(dir, players, color);
+                        
                         arrow.animate(bpm, measureIndex, lineIndex, notes);
                         obj[indexToDir[index]].push(arrow);
                     }

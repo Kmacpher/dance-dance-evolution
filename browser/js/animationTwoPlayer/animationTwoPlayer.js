@@ -35,11 +35,25 @@ app.config(function($stateProvider) {
 
                     var startTime = 0;
                     ArrowFactory.makeTimeline();
-                    var arrows = ArrowFactory.makeArrows(stepChart.chart, $scope.mainBPM);
+                    var arrows1 = ArrowFactory.makeArrows(stepChart.chart, $scope.mainBPM, 1);
+                    var arrows2 = ArrowFactory.makeArrows(stepChart.chart, $scope.mainBPM, 2);
                     ArrowFactory.addStops($scope.currentSong.stops, $scope.config.ARROW_TIME, $scope.config.BEAT_TIME);
                     ArrowFactory.addBpmChanges($scope.currentSong.bpms, $scope.config.ARROW_TIME, $scope.config.BEAT_TIME, $scope.currentSong.stops);
-                    var arrowWorker = new Worker('/js/animation/animationWorker.js');
-                    arrowWorker.postMessage({
+                    var arrowWorker1 = new Worker('/js/animation/animationWorker.js');
+                    var arrowWorker2 = new Worker('/js/animation/animationWorker.js');
+
+                    arrowWorker1.postMessage({
+                        type: 'preChart',
+                        chart: stepChart.chart,
+                        bpm: $scope.mainBPM,
+                        arrowOffset: $scope.config.ARROW_TIME + $scope.currentSong.offset,
+                        songOffset: $scope.currentSong.offset,
+                        timing: $scope.config.TIMING_WINDOW,
+                        bpms: $scope.currentSong.bpms,
+                        stops: $scope.currentSong.stops
+                    });
+
+                    arrowWorker2.postMessage({
                         type: 'preChart',
                         chart: stepChart.chart,
                         bpm: $scope.mainBPM,
@@ -52,21 +66,21 @@ app.config(function($stateProvider) {
 
                     console.log(tone);
                     var activeArrows
-                    arrowWorker.onmessage = function (e) {
-                        arrows[e.data.dir][e.data.index].el.removeClass('activeArrow');
+                    arrowWorker1.onmessage = function (e) {
+                        arrows1[e.data.dir][e.data.index].el.removeClass('activeArrow');
 
                         if($('.activeArrow').length === 0) {
                             setTimeout(function() {
                                 console.log('exited out here :(')
                                 tone.stop();
-                                arrowWorker.terminate();
+                                arrowWorker1.terminate();
                                 ArrowFactory.killTimeline();
                                 $state.go('chooseSong');
                             }, 3000);
                         }
 
                         if(e.data.hit) {
-                            arrows[e.data.dir][e.data.index].el.remove();
+                            arrows1[e.data.dir][e.data.index].el.remove();
                             console.log('difff is ', e.data.diff);
                             $scope.score = ScoreFactory.addScore(e.data.diff);
                             $scope.combo = ScoreFactory.addCombo(e.data.diff);
@@ -78,6 +92,36 @@ app.config(function($stateProvider) {
                         //console.log($scope.score);
                         $scope.$digest();
                     };
+
+                    arrowWorker2.onmessage = function (e) {
+                        arrows2[e.data.dir][e.data.index].el.removeClass('activeArrow');
+
+                        if($('.activeArrow').length === 0) {
+                            setTimeout(function() {
+                                console.log('exited out here :(')
+                                tone.stop();
+                                arrowWorker2.terminate();
+                                ArrowFactory.killTimeline();
+                                $state.go('chooseSong');
+                            }, 3000);
+                        }
+
+                        if(e.data.hit) {
+                            arrows2[e.data.dir][e.data.index].el.remove();
+                            console.log('difff is ', e.data.diff);
+                            $scope.score = ScoreFactory.addScore(e.data.diff);
+                            $scope.combo = ScoreFactory.addCombo(e.data.diff);
+                        } else {
+                            // arrows[e.data.dir][e.data.index].el.css("opacity", 0.1);
+                            $scope.combo = ScoreFactory.resetCombo(e.data.accuracy);
+                            ScoreFactory.addScore(e.data.diff);
+                        };
+                        //console.log($scope.score);
+                        $scope.$digest();
+                    };
+
+
+
                     var placeArrows = {
                         left: $(`.left-arrow-col .arrowPlace`),
                         right: $(`.right-arrow-col .arrowPlace`),
@@ -102,7 +146,8 @@ app.config(function($stateProvider) {
                                 ToneFactory.play('back');
                                 /** kill music (ToneFactory), animation timeline, and worker; go back to select screen */
                                 tone.stop();
-                                arrowWorker.terminate();
+                                arrowWorker1.terminate();
+                                arrowWorker2.terminate();
                                 ArrowFactory.killTimeline();
                                 document.body.removeEventListener('keydown', stopSong);
                                 $state.go('chooseSong');
@@ -111,7 +156,8 @@ app.config(function($stateProvider) {
                             if (placeArrows[dir]) placeArrows[dir].addClass('arrowPlacePressed');
 
                             var timeStamp = (Date.now() - startTime) / 1000;
-                            arrowWorker.postMessage({type: 'keyPress', timeStamp, dir});
+                            arrowWorker1.postMessage({type: 'keyPress', timeStamp, dir});
+                            arrowWorker2.postMessage({type: 'keyPress', timeStamp, dir});
                         }
                         document.body.addEventListener('keydown', stopSong);
 
@@ -119,14 +165,18 @@ app.config(function($stateProvider) {
                             var dir = keyCodeToDir[e.keyCode];
                             if (!dir) return;
                             allPlaceArrows.removeClass('arrowPlacePressed');
-                        })
+                        });
                     }
 
                     var runInit = function () {
                         ArrowFactory.resumeTimeline();
                         tone.start();
                         startTime = Date.now() - $scope.currentSong.offset*1000;
-                        arrowWorker.postMessage({
+                        arrowWorker1.postMessage({
+                          type: 'startTime',
+                          startTime
+                        });
+                        arrowWorker2.postMessage({
                           type: 'startTime',
                           startTime
                         });
