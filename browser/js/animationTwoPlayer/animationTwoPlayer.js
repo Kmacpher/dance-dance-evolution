@@ -29,7 +29,11 @@ app.config(function($stateProvider) {
                       '40': 'down',
                       '38': 'up',
                       '39': 'right',
-                      '27': 'escape'
+                      '27': 'escape',
+                      '65': 'left', //a
+                      '87': 'up', //w
+                      '83': 'down', //s
+                      '68': 'right' //d
                     };
 
 
@@ -154,10 +158,11 @@ app.config(function($stateProvider) {
                             }
 
                             if (placeArrows[dir]) placeArrows[dir].addClass('arrowPlacePressed');
+                            //do a thing here so that they dont' all highlight
 
                             var timeStamp = (Date.now() - startTime) / 1000;
-                            arrowWorker1.postMessage({type: 'keyPress', timeStamp, dir});
-                            arrowWorker2.postMessage({type: 'keyPress', timeStamp, dir});
+                            if(e.keyCode < 65) arrowWorker1.postMessage({type: 'keyPress', timeStamp, dir});
+                            else arrowWorker2.postMessage({type: 'keyPress', timeStamp, dir});
                         }
                         document.body.addEventListener('keydown', stopSong);
 
