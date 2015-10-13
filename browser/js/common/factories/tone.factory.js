@@ -39,7 +39,7 @@ app.factory('ToneFactory', function ($q) {
 
     ToneFactory.sandstorm = function () {
       ToneFactory.sandstormAudio = new Audio(`/audio/Sandstorm.mp3`);
-      ToneFactory.sandstormAudio.play();
+      // ToneFactory.sandstormAudio.play();
     };
 
     ToneFactory.prototype.previewStart = function() {

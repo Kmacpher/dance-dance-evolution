@@ -6,7 +6,7 @@ app.config(function ($stateProvider) {
     });
 });
 
-app.controller('HomeController', function($rootScope, $scope, $state, AuthService, AUTH_EVENTS, ToneFactory) {
+app.controller('HomeController', function($rootScope, $scope, $state, AuthService, AUTH_EVENTS, ToneFactory, VizFactory) {
   $scope.user = null;
   var menu = [1, 2, 3, 4, 5];
 
@@ -35,6 +35,8 @@ app.controller('HomeController', function($rootScope, $scope, $state, AuthServic
   } else {
     ToneFactory.sandstormAudio.play();
   }
+
+  VizFactory.getAnalyzerNode();
 
   function play(fx) {
     ToneFactory.play(fx);
