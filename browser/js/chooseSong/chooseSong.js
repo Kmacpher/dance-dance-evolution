@@ -15,20 +15,24 @@ app.config(function ($stateProvider) {
 
 });
 
-app.controller('ChooseSongCtrl', function ($scope, CarouselFactory, $state, songs, $timeout, ToneFactory) {
+app.controller('ChooseSongCtrl', function ($scope, CarouselFactory, $state, songs, $timeout, ToneFactory, ScoreFactory) {
 
 	$scope.songs = songs;
 
 	$scope.choice = {};
 
     $scope.songPreview;
+
+    //add a new player for testing purposes
+    // ScoreFactory.addPlayer();
+
     // $scope.speedMod = ArrowFactory.speedModifier;
     // ArrowFactory.setSpeed($scope.speedMod);
     console.log(`All songs: (Count: ${songs.length})`);
     console.log(songs.map(s => s.title).sort().join(', '));
 
     function viewSongInfo() {
-        var $selected = $('.selected');
+        var $selected = $('.selected1');
         console.log(`$selected:`)
         console.log($selected);
         if ($selected) $scope.selectedDifficulty = $selected[0].textContent.trim();
@@ -58,12 +62,13 @@ app.controller('ChooseSongCtrl', function ($scope, CarouselFactory, $state, song
             $scope.songPreview.previewStart();           
         }
 
+        displayGrooveRadar($scope.selectedChart);
     }
 
     function chooseLevel(e) {
         if ($scope.choice.levels < 2) return;
         CarouselFactory.chooseLevel(e);
-        if (e.keyCode === 38 || e.keyCode === 40) {
+        if (e.keyCode === 38 || e.keyCode === 40 || e.keyCode === 87 || e.keyCode === 83 ) {
             ToneFactory.play('blop');
             viewSongInfo();      
         }
@@ -82,11 +87,8 @@ app.controller('ChooseSongCtrl', function ($scope, CarouselFactory, $state, song
         }
     }
 
-
     $scope.selectedDifficulty;
     $scope.selectedChart;
-
-
 
     $(document).ready(
         $timeout ( function () {
@@ -98,8 +100,15 @@ app.controller('ChooseSongCtrl', function ($scope, CarouselFactory, $state, song
 
     $scope.getDifficulties = function(song) {
         $('.choose-level').css("visibility", "visible");
+        $('#groovey').css("visibility", "visible");
+        //change below once we know have many players
+        ScoreFactory.allPlayerGuys.forEach(function (guy, index) {
+            $(`.selectedArrow${index+1}`).css("visibility", "visible");
+        });
         $timeout(function() {
-            $('#level0').addClass("selected");
+            ScoreFactory.allPlayerGuys.forEach(function (guy, index) {
+                $('#level0').addClass(`selected${index+1}`).children(`.player${index+1}Arrow`).addClass(`selectedArrow${index+1}`);
+            })
             viewSongInfo();   
         });
         
@@ -121,6 +130,24 @@ app.controller('ChooseSongCtrl', function ($scope, CarouselFactory, $state, song
         window.addEventListener("keydown", chooseLevel, false);
     };
 
+    function displayGrooveRadar (chart) {
+        console.log('groovey ', chart);
+        var data = [[
+            {axis: "Air", value: chart.grooveRadar['air']},
+            {axis: "Chaos", value: chart.grooveRadar['chaos']},
+            {axis: "Freeze", value: chart.grooveRadar['freeze']},
+            {axis: "Stream", value: chart.grooveRadar['stream']},
+            {axis: "Voltage", value: chart.grooveRadar['voltage']}
+        ]];
+        RadarChart.defaultConfig.radius = 1;
+        RadarChart.defaultConfig.w = 300;
+        RadarChart.defaultConfig.h = 200;
+        RadarChart.defaultConfig.containerClass = 'radar-chart';
+        RadarChart.defaultConfig.axisLine = true;
+        console.log(RadarChart);
+
+        RadarChart.draw("#groovey", data);
+    }
 
     $scope.loadSong = function(level) {
         ToneFactory.play('start');

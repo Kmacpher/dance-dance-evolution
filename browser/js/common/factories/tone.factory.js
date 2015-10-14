@@ -46,6 +46,8 @@ app.factory('ToneFactory', function ($q) {
         var self = this;
         Tone.Buffer.onload = function() {
             console.log('in previewstart starting NRNRNRKNKNE')
+            console.log($('.radar-chart'));
+
             self.preview.start();
         }
     }

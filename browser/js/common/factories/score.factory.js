@@ -201,6 +201,7 @@ app.factory('ScoreFactory', function() {
     return {
         addScore: addScore,
         addCombo: addCombo,
+        addPlayer: addPlayer,
         resetPlayers: resetPlayers,
         resetCombo: resetCombo,
         finalScore: finalScore,
@@ -210,6 +211,7 @@ app.factory('ScoreFactory', function() {
         getPercent: getPercent,
         getAccuracy: getAccuracy,
         setStepChart: setStepChart,
-        getAccuracyColors: getAccuracyColors
+        getAccuracyColors: getAccuracyColors,
+        allPlayerGuys: allPlayerGuys
     };
 });

@@ -1,7 +1,8 @@
 <header>
 	<h1>Dance Dance Evolution</h1>
 </header>
-<div id="contentContainer" class="trans3d" >
+<div id="contentContainer" class="trans3d clearfix" >
+	<div id="groovey"></div>
 	<section id="carouselContainer" class="trans3d" ng-hide='loading'>
 		<figure id="item{{$index + 1}}" class="carouselItem trans3d" ng-click='getDifficulties(song)' ng-repeat="song in songs">
 			<span class="carouselItemInner trans3d">
@@ -18,6 +19,8 @@
 	<div class='choose-level'>
 		  <div id='level{{$index}}' class='difficulty' ng-click='loadSong(chart)' ng-repeat="chart in choice.levels">
 		  	{{chart}}
+		  	<img class="player1Arrow" src="/img/leftA.png" />
+		  	<img class="player2Arrow" src="/img/leftA2.png" />		  		
 		  </div>
 	</div>
 	
