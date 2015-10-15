@@ -10,6 +10,12 @@ app.controller('HomeController', function ($rootScope, $scope, $state, AuthServi
   $scope.user = null;
   var menu = [1, 2, 3, 4, 5];
 
+  $('.homeMenu').click( function (e) {
+    e.stopPropagation();
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  });
+
   var setUser = function () {
       AuthService.getLoggedInUser().then(function (user) {
           $scope.user = user;

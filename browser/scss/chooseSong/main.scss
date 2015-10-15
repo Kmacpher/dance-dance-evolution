@@ -122,7 +122,7 @@
 		font-size: 30px;
 		color: #b2b2b2;
 		position: absolute;
-		left: 80%;
+		left: 77%;
 		width: 20%;
 		div {
 			max-height: 6vh;
@@ -194,20 +194,15 @@
 		position: absolute;
 		left: -4%;
 		.radar-chart .area {
-		  fill-opacity: 0.7;
+		  fill-opacity: 0.5;
 		}
 
 		.radar-chart.focus .area.focused {
 		  fill-opacity: 0.9;
 		}
-		
-		//below doesnt work
-		.axis text {
-			color: white;
-		}
 
 		.area.grooveGuy {
-			fill-opacity: 0.1;
+			fill-opacity: 0.05;
 		}
 		
 	}

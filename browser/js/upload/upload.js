@@ -56,7 +56,7 @@ app.controller('uploadCtrl', function ($scope, Upload, $state, keyConfigFactory)
     };
 
     function onArrowKey(event) {
-        var button = keyConfigFactory(event);
+        var button = keyConfigFactory.getButton(event);
         if (!button) return;
         if (button.name === 'escape') {
             $(document).off('keydown');

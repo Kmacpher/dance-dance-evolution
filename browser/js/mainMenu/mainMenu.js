@@ -12,6 +12,12 @@ app.controller('MainMenuCtrl', function ($scope, $state, ToneFactory, keyConfigF
     $('.activeChoice').removeClass("activeChoice");
     $('#option1').addClass("activeChoice");
 
+    $('.menuXParent').click( function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        e.stopImmediatePropagation();
+    });
+
     function play(fx) {
       ToneFactory.play(fx);
     };

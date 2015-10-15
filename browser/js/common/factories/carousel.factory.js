@@ -143,8 +143,9 @@ app.factory('CarouselFactory', function ($state, ToneFactory, ScoreFactory, keyC
             var $nz = -4000 + getRandomInt(4000);
 
             var heightGuy = window.outerHeight*0.03;
+
             TweenMax.to($(`#item${target}`), 1, {
-                transform: 'scale(4) translateY(-'+heightGuy+'vh)'
+                transform: 'scale(4) translateY(-'+(heightGuy + 1.3*(songs-13))+'vh)'
             });
             $(`#item${target} > .carouselItemInner`).addClass('activeSong');
             TweenMax.to($('.carouselContainer'), 1, {
