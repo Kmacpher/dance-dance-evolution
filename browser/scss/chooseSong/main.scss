@@ -121,36 +121,60 @@
 		font-family: petit;
 		font-size: 30px;
 		color: #b2b2b2;
-		position: relative;
-		top: -6.5vh;
-		left: 80%;
-		width: 15%;
+		position: absolute;
+		left: 77%;
+		width: 20%;
 		div {
 			max-height: 6vh;
+		}
+		.player1Arrow {
+			height: 3vh;
+			visibility: hidden;
+			display: inline-block;
+		}
+		.player2Arrow {
+			height: 3vh;
+			visibility: hidden;
+			display: inline-block;
+		}
+		.selectedArrow1 {
+			visibility: visible;
+		}
+		.selectedArrow2 {
+			visibility: visible;
 		}
 	}
 
 
 	#chart-info {
-		font-size: 32px;
+		font-size: 10vh;
 		color: #b2b2b2;
 		position: absolute;
 		top: 14%;
-		left: 5%;
+		left: 15%;
 		width: 15%;
 		div {
 			max-height: 9vh;
 		}
 	}
 
-	.selected {
+	.selected1 {
 		font-size: 32px;
 		font-weight: bold;
-		color: white;
+		// color: #E9A92E;
+		color: #3E98DF;
+	}
+
+	.selected2 {
+		font-size: 32px;
+		font-weight: bold;
+		color: #22BD6B;
+		// color: #3E98DF;
 	}
 
 	.activeSong {
 		background-color: #E9A92E;
+		// background-color: #9A54CF;
 		//border:10px solid #E9A92E;
 	}
 
@@ -162,3 +186,29 @@
 		min-width: 100%;
 		overflow: hidden;
 	}
+
+	#groovey {
+		visibility: hidden;
+		display: block;
+		color: white;
+		position: absolute;
+		left: -4%;
+		.radar-chart .area {
+		  fill-opacity: 0.5;
+		}
+
+		.radar-chart.focus .area.focused {
+		  fill-opacity: 0.9;
+		}
+
+		.area.grooveGuy {
+			fill-opacity: 0.05;
+		}
+		
+	}
+
+	svg {
+		fill: white;
+	}
+
+

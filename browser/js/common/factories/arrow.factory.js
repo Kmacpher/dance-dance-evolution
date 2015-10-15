@@ -100,7 +100,7 @@ app.factory('ArrowFactory', function () {
     };
 
 
-    Arrow.makeArrows = function (stepChart, bpm, config, currentSong) {
+    Arrow.makeArrows = function (stepChart, bpm, config, currentSong, player) {
 
         Arrow.makeTimeline();
 
@@ -140,10 +140,10 @@ app.factory('ArrowFactory', function () {
                         else color = 'green';
                         var arrow;
                         if (maybeArrow === "1") {
-                            arrow = new Arrow(dir, 1, color);
+                            arrow = new Arrow(dir, player, color);
                         } else if (maybeArrow === "2") {
                             freezes[dir].firstBeat = thisBeat;
-                            arrow = new FreezeArrow(dir, 1, color);
+                            arrow = new FreezeArrow(dir, player, color);
                             freezes[dir].arrow = arrow;
                         }
                         arrow.animate(bpm, measureIndex, lineIndex, notes);

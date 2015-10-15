@@ -1,0 +1,24 @@
+#key-binding {
+
+  table {
+    font-size: 15pt;
+  }
+
+  input {
+    display: inline-block;
+    margin-right: 10px;
+    width: 50px;
+  }
+
+  label {
+    margin-top: 10px;
+    margin-right: 10px;
+    font-size: 15pt;
+    display: inline-block;
+  }
+
+  * {
+    cursor: pointer;
+  }
+
+}

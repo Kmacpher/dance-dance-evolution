@@ -1,13 +1,50 @@
-<div>
-  <video muted id='video-landing' autoplay loop>
-    <source src='/video/landingPage5.mp4' type='video/mp4'></source>
-  </video>
-</div>
-<div class='wrap homeMenu' style='padding-top: 236.5px'>
+<div id="home">
+  <div>
+    <video muted id='video-landing' autoplay loop>
+      <source src='/video/landingPage5.mp4' type='video/mp4'></source>
+    </video>
+  </div>
+  <div class='wrap homeMenu' style='padding-top: 236.5px'>
 
-  <button id="option1" class='btn btn-primary outline round activeHome'><div ui-sref='mainMenu'>Main Menu</div></button>
-  <button id="option2" class='btn btn-primary outline round'><div ui-sref='chooseSong'>Dance Now</div></button>
-  <button id="option3" class='btn btn-primary outline round' ui-sref='login' ng-hide='user'><div>Login</div></button>
-  <button id="option4" class='btn btn-primary outline round' ui-sref='signup' ng-hide='user'><div>Signup</div></button>
-  <button id="option5" class='btn btn-primary outline round' ng-show='user' ng-click='logout()'><div>Logout</div></button>
+    <button id="option1" class='btn btn-lg btn-primary outline round activeHome'><div ui-sref='mainMenu'>Main Menu</div></button>
+    <button id="option2" class='btn btn-lg btn-primary outline round'><div ui-sref='chooseSong'>Dance Now</div></button>
+    <button id="option3" class='btn btn-lg btn-primary outline round' ui-sref='login' ng-hide='user'><div>Login</div></button>
+    <button id="option4" class='btn btn-lg btn-primary outline round' ui-sref='signup' ng-hide='user'><div>Signup</div></button>
+    <button id="option5" class='btn btn-lg btn-primary outline round' ng-show='user' ng-click='logout()'><div>Logout</div></button>
+
+    <div class="arrow-keys row">
+
+      <div class="row">
+
+        <div class="col-sm-offset-2 col-sm-8">
+          <div class="col-sm-offset-4 col-sm-4">
+            <div class="row">
+              <div class="col-sm-4 storeKey">
+                <div class="dummy"></div>
+                <div class="left"><img src="/img/arrowKey.png" alt=""></div>
+              </div>
+              <div class="col-sm-4 storeKey">
+                <div class="up"><img src="/img/arrowKey.png" alt=""></div>
+                <div class="dummy"></div>
+                <div class="down"><img src="/img/arrowKey.png" alt=""></div>
+              </div>
+
+              <div class="col-sm-4 storeKey">
+                <div class="dummy"></div>
+                <div class="right"><img src="/img/arrowKey.png" alt=""></div>
+                <div class="instruction">to move</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="enter">
+      <img src="/img/enterKey.png" alt="">
+      <span> to select</span>
+    </div>
+
+
+  </div>
 </div>

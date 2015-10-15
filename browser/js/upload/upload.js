@@ -8,7 +8,7 @@ app.config(function($stateProvider) {
 
 });
 
-app.controller('uploadCtrl', function ($scope, Upload, $state) {
+app.controller('uploadCtrl', function ($scope, Upload, $state, keyConfigFactory) {
 
     var blink = true;
     setInterval(function() {
@@ -55,12 +55,17 @@ app.controller('uploadCtrl', function ($scope, Upload, $state) {
         });
     };
 
-    window.addEventListener('keydown', onArrowKey);
-        function onArrowKey(event) {
-            if(event.keyCode === 27) {
-                window.removeEventListener('keydown', onArrowKey);
-                $state.go('mainMenu');
-            };
+    function onArrowKey(event) {
+        var button = keyConfigFactory.getButton(event);
+        if (!button) return;
+        if (button.name === 'escape') {
+            $(document).off('keydown');
+            window.removeEventListener('gamepadbuttondown', onArrowKey);
+            $state.go('home');
+        };
     };
+
+    $(document).on('keydown', onArrowKey);
+    window.addEventListener('gamepadbuttondown', onArrowKey);
 
 });

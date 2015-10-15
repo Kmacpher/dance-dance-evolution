@@ -7,14 +7,20 @@ app.config(function($stateProvider) {
         resolve: {
             song: function(SongFactory, $stateParams) {
                 return SongFactory.getSongById($stateParams.songId);
+            },
+            resolve: function(song) {
+                return song.background;
             }
         },
 
         controller: function($scope, ArrowFactory, ToneFactory, song, SongFactory, $stateParams, ScoreFactory, $state, $timeout, WorkerFactory) {
+
+            $scope.imageSrc = `/img/background/${song.background}`;
+
             $scope.ready = false;
             var currentSong = song;
             //showCombo is set true only when there is a combo to show, as we don't want to show 0 combos
-            $scope.showCombo = false;
+            $scope.showCombo1 = false;
 
             const TIMING_WINDOW = ScoreFactory.TIMINGWINDOWS.Great;
 
@@ -58,13 +64,16 @@ app.config(function($stateProvider) {
                 // functions defined in arrow
 
                 // sets up arrow for animating
-                var arrows = ArrowFactory.makeArrows(stepChart.chart, mainBPM, config, currentSong);
+                var arrows = ArrowFactory.makeArrows(stepChart.chart, mainBPM, config, currentSong, 1);
 
                 // gives arrowWorker first chart
-                arrowWorker = new WorkerFactory('/js/animation/animationWorker.js');
-                arrowWorker.prepStepChart(currentSong, config, mainBPM, stepChart.chart)
+                arrowWorker = new WorkerFactory('/js/animation/animationWorker.js', 1);
+                arrowWorker.prepStepChart(currentSong, config, mainBPM, stepChart.chart);
 
-                arrowWorker.handleMessages($scope, arrows, tone);
+                arrowWorker.handleMessages($scope, arrows, tone, 1);
+
+
+
                 Tone.Buffer.onload = runInit;
 
             };
@@ -90,7 +99,7 @@ app.config(function($stateProvider) {
                     $scope.videoSrc = '/video/Darude - Sandstorm.mp4';
                 }
                 else {
-                    $scope.imageSrc = `/img/background/${currentSong.title}-bg.png`;
+
                 }
                 setTimeout(function() {
                     var video = document.getElementById('bg-video');

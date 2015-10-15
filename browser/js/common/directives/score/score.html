@@ -1,4 +1,5 @@
 <div class="view-score">
-	{{combo || 0}} combo
+	<p ng-show="player === 1">{{combo1 || 0}} combo</p>
+	<p ng-show="player === 2">{{combo2 || 0}} combo</p>
 	<!-- score: {{score || 0}} -->
 </div>

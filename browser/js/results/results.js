@@ -19,7 +19,7 @@ app.config(function($stateProvider) {
 
 });
 
-app.controller('ResultsCtrl', function($scope, player, percent, score, ScoreFactory, $state, ToneFactory) {
+app.controller('ResultsCtrl', function($scope, player, percent, score, ScoreFactory, $state, ToneFactory, keyConfigFactory) {
     $scope.player1 = player;
     $scope.percent = percent;
     $scope.score = parseInt(score);
@@ -28,20 +28,26 @@ app.controller('ResultsCtrl', function($scope, player, percent, score, ScoreFact
       ToneFactory.play(fx);
     };
 
-    window.addEventListener('keydown', leaveResults);
-
     function leaveResults(event) {
-        if (event.keyCode === 27) {
+        var button = keyConfigFactory.getButton(event);
+        if (!button) return;
+        if (button.name === "escape") {
             play('back');
             window.removeEventListener('keydown', leaveResults);
+            window.removeEventListener('gamepadbuttondown', leaveResults);
             ScoreFactory.resetPlayers();
             $state.go('mainMenu');
         }
-        else if (event.keyCode === 13) {
+        else if (button.name === "enter") {
             play('start');
             window.removeEventListener('keydown', leaveResults);
+            window.removeEventListener('gamepadbuttondown', leaveResults);
             ScoreFactory.resetPlayers();
             $state.go('chooseSong');
         }
     }
+
+    window.addEventListener('keydown', leaveResults);
+    window.addEventListener('gamepadbuttondown', leaveResults);
+
 });

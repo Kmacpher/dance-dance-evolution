@@ -1,0 +1,44 @@
+<div id="key-binding">
+  <div>
+    <h1>Set Your Keys</h1>
+  </div>
+  <div class="container">
+    <div class="panel panel-default">
+
+      <div class="panel-heading">
+        <h2>Press this key (FIRST!):</h2>
+        <h2>{{currKey}}</h2>
+      </div>
+
+
+      <div class="panel-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>DDE Function</th>
+              <th>Your assigned key</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr ng-repeat="(key, value) in keys">
+              <td>{{key}}</td>
+              <td>{{value.name}}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <label for="player">Which player is this for?</label>
+        <input id="player" class="form-control" type="text" ng-model="player"/>
+
+        <button class='btn btn-danger' ng-click="restart()">Restart</button>
+        <button class='btn btn-success' ng-click="save(keys)">Save</button>
+        <button class='btn btn-info' ng-click="resetToDefault()">Reset to Default</button>
+        <button class='btn btn-success' ng-click="goBack()">Back to Main Menu</button>
+      </div>
+
+    </div>
+  </div>
+
+
+
+</div>

@@ -34,7 +34,6 @@ var chart = {
 
 var timeouts = [];
 
-// add last timeout
 
 var TIMING_WINDOW;
 
@@ -93,15 +92,15 @@ var checkArrow = function(arrowTime, last) {
             index: arrowTime.index,
             dir: arrowTime.dir
         });
-    }
-    // at the end of a freeze (regardless of good or bad)
-    else if (arrowTime.freezeUp) {
-        console.log('END FREEZE!!!!!');
+    } else if (arrowTime.animate) {
         postMessage({
             freezeUp: true,
             dir: arrowTime.dir,
             index: arrowTime.index
         });
+    }
+    // at the end of a freeze (regardless of good or bad)
+    else if (arrowTime.freezeUp) {
         inFreeze[arrowTime.dir].freeze = false;
     }
 }
@@ -148,14 +147,22 @@ var preChart = function(stepChart, bpm, arrowOffset, songOffset, timing, bpms, s
                         time: timeStamp,
                         freezeUp: true,
                         // signal to checkArrow to specify which arrow to remove freeze from
-                        index: inFreeze[indexToDir[index]].fromArrow
+                        index: inFreeze[indexToDir[index]].fromArrow,
                     };
-                    thisTimeout = function(last) {
+                    var holdingFreezeTimeout = function(last) {
                         setTimeout(function() {
                             checkArrow(arrowTime, last);
                         }, (timeStamp - TIMING_WINDOW - songOffset) * 1000)
                     };
-                    timeouts.push(thisTimeout);
+                    var animationFreezeTimeout = function(last) {
+                        setTimeout(function() {
+                            arrowTime.animate = true;
+                            checkArrow(arrowTime, last);
+                        }, (timeStamp + TIMING_WINDOW - songOffset) * 1000)
+                    };
+                    timeouts.push(holdingFreezeTimeout);
+                    timeouts.push(animationFreezeTimeout);
+
                 }
 
             });

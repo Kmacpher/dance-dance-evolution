@@ -1,0 +1,67 @@
+#home {
+  position: relative;
+
+  .storeKey {
+    padding: 0;
+  }
+
+  .arrow-keys {
+    margin-bottom: 30px;
+    margin-top: 30px;
+  }
+
+  .dummy {
+    padding-top: 100%;
+  }
+
+  .up img {
+    position: relative;
+    transition: transform 0.2s;
+    width: 100%;
+    transition: all 0.2s;
+    // left: calc((100vw / 10));
+  }
+  .right img {
+    position: relative;
+    width: 100%;
+    transform: rotate(90deg);
+    transition: all 0.2s;
+    // transform: rotate(90deg);
+    // position: absolute;
+    // left: calc(100vw / 10);
+  }
+  .down img {
+    position: relative;
+    width: 100%;
+    transform: rotate(180deg);
+    transition: all 0.2s;
+    // position: absolute;
+  }
+  .left img {
+    position: relative;
+    transition: all 0.2s;
+    transform: rotate(-90deg);
+    width: 100%;
+  }
+
+  .enter {
+    img {
+      height: 90px
+    }
+
+  }
+
+  .instruction {
+    color: #2DDEFF;
+    font-size: 15pt;
+    margin-top: 38%;
+  }
+
+  span {
+    color: #2DDEFF;
+    font-size: 15pt;
+    padding-left: 15px;
+
+  }
+
+}

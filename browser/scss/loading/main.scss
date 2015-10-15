@@ -1,6 +1,6 @@
 div.loadingScreen.ng-scope {
   width: 70%;
-  height: auto;
+  height: 80%;
   margin: 0 auto;
   margin-top: 5%;
   // background-color: black;
@@ -9,8 +9,13 @@ div.loadingScreen.ng-scope {
 
 //note for later - change the widths and heights of the parent elements to be %
 .loadingSphere {
+  img {
+    width: 30%; 
+    height: 30%; 
+    margin: 4%;
+  }
   margin-left: auto;
-  margin-top: 10%;
+  margin-top: 4%;
   font-family: EchoDeco;
   font-weight: 10;
   font-size: 4.5vh;
@@ -18,6 +23,6 @@ div.loadingScreen.ng-scope {
   padding-top: 2%;
   text-align: center;
   div {
-    padding: 30px;
+    padding: 10px;
   }
 }

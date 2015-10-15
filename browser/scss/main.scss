@@ -38,19 +38,34 @@ div#main.ng-leave-active {
 
 * {
   box-sizing: border-box;
+  cursor: none;
 }
 
-$arrow-height: 120px;
+$base__bgcolor: #2c3338;
+$base__color: #606468;
+$base__font-family-fallback: sans-serif;
+$base__font-family: 'Open Sans';
+$base__font-size: 1.3rem;
+$base__font-weight: 400;
+$base__line-height: 1.5;
 
-// overflow hidden to keep from seeing hidden arrow divs -- do we need to scroll ever?
+html {
+  height: 100%;
+}
+
 body {
+  background-color: $base__bgcolor;
+  color: $base__color;
+  font: $base__font-weight #{$base__font-size}/#{$base__line-height} $base__font-family, $base__font-family-fallback;
+  margin: 0;
+  min-height: 100%;
   overflow: hidden;
-  // background: #464A4D; // gray color?
   opacity: 0.8;
-  background: #fdfdfd;
   height: 100%;
   weight: inherit;
 }
+
+$arrow-height: 120px;
 
 .wrap {
   margin: 0 auto;
@@ -75,15 +90,10 @@ body {
   color: #2DDEFF;
 }
 
-.btn-primary.outline:hover, .btn-primary.outline:focus, .btn-primary.outline:active, .btn-primary.outline.active, .open > .dropdown-toggle.btn-primary {
+.btn-primary.outline.active {
     color: white;
     border-color: white;
 }
-// .btn-primary.outline:active, .btn-primary.outline.active {
-//     border-color: #007299;
-//     color: #007299;
-//     box-shadow: none;
-// }
 
 .btn-primary.activeHome {
     color: white;
@@ -134,4 +144,6 @@ body {
 @import 'upload/main';
 @import 'animation/main';
 @import 'results/main';
-
+@import 'key-binding';
+@import 'home';
+@import 'versus';

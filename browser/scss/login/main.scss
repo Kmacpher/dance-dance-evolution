@@ -3,10 +3,6 @@
   margin: 0 auto;
 }
 
-// Fonts
-
-@import url(http://weloveiconfonts.com/api/?family=fontawesome);
-@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,700);
 
 // Vendor
 
@@ -15,14 +11,6 @@
 }
 
 // Variables
-
-$base__bgcolor: #2c3338;
-$base__color: #606468;
-$base__font-family-fallback: sans-serif;
-$base__font-family: 'Open Sans';
-$base__font-size: 1.3rem;
-$base__font-weight: 400;
-$base__line-height: 1.5;
 
 $form--login__border-radus: .25rem;
 $form--login__color: #606468;
@@ -42,18 +30,6 @@ $link__color: #eee;
 
 * {
   box-sizing: border-box;
-}
-
-html {
-  height: 100%;
-}
-
-body {
-  background-color: $base__bgcolor;
-  color: $base__color;
-  font: $base__font-weight #{$base__font-size}/#{$base__line-height} $base__font-family, $base__font-family-fallback;
-  margin: 0;
-  min-height: 100%;
 }
 
 a {

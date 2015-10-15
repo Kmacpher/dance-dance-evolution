@@ -20,6 +20,9 @@
   padding-top: 10%;
   text-align: center;
   // background-color: red;
+  * {
+    cursor: pointer;
+  }
 }
 
 span.button:hover {

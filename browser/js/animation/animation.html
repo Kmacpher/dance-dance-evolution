@@ -1,4 +1,4 @@
-<div class='loadingScreen' ng-hide='ready'>
+<div class='container loadingScreen' ng-hide='ready'>
   <loading></loading>
 </div>
 
@@ -7,7 +7,7 @@
 <div class='animContainer' ng-show='ready'>
   <!-- <iframe width="560" height="315" src="https://www.youtube.com/embed/2HQaBWziYvY" frameborder="0" allowfullscreen></iframe> -->
 
-  <!-- <img id='bg-image' ng-src="{{imageSrc}}" /> -->
+  <img id='bg-image' ng-src="{{imageSrc}}" />
 
   <video id='bg-video' ng-src="{{videoSrc}}" muted loop>
     <!-- <source ng-src="{{videoSrc}}" type='video/mp4'></source> -->
@@ -21,36 +21,37 @@
   <div class="row">
     <div class="col-sm-offset-2 col-sm-8 player-1">
       <div id="player-1-arrowLane" class="row">
-        <div class="accuracy" style="color: {{accuracyCol}}">{{accuracy}}</div>
+        <div class="accuracy" style="color: {{accuracyCol1}}">{{accuracy1}}</div>
+        <div class="view-score" ng-show='ready && showCombo1'>{{combo1 || 0}} combo</div>
         <div class="pusher"></div>
         <div class="col-sm-3 left-arrow-col arrow-col-0 arrow-col">
             <div class="fader"></div>
             <div class="chute chute-left"></div>
             <div class="under-chute chute-left"></div>
-            <div class="arrowPlace"><img src="/img/arrows/left-blank.png"></img></div>
+            <div class="arrowPlace arrowP1"><img src="/img/arrows/left-blank.png"></img></div>
 
         </div>
         <div class="col-sm-3 down-arrow-col arrow-col-1 arrow-col">
             <div class="fader"></div>
             <div class="chute"></div>
             <div class="under-chute"></div>
-            <div class="arrowPlace"><img src="/img/arrows/down-blank.png"></img></div>
+            <div class="arrowPlace arrowP1"><img src="/img/arrows/down-blank.png"></img></div>
 
         </div>
         <div class="col-sm-3 up-arrow-col arrow-col-2 arrow-col">
             <div class="fader"></div>
             <div class="chute"></div>
             <div class="under-chute"></div>
-            <div class="arrowPlace"><img src="/img/arrows/up-blank.png"></img></div>
+            <div class="arrowPlace arrowP1"><img src="/img/arrows/up-blank.png"></img></div>
 
         </div>
         <div class="col-sm-3 right-arrow-col arrow-col-3 arrow-col">
             <div class="fader"></div>
             <div class="chute chute-right"></div>
             <div class="under-chute chute-right"></div>
-            <div class="arrowPlace"><img src="/img/arrows/right-blank.png"></img></div>
+            <div class="arrowPlace arrowP1"><img src="/img/arrows/right-blank.png"></img></div>
         </div>
-        <score ng-show='ready && showCombo'></score>
+        <!-- <score player="1" ng-show='ready && showCombo1'></score> -->
         <div class='track'>
         </div>
       </div>
