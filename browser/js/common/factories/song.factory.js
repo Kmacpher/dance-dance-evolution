@@ -22,11 +22,19 @@ app.factory('SongFactory', function ($http) {
     });
   };
 
+  var generateChart = function(songInfo) {
+    return $http.post('/api/songs/autogen', songInfo)
+    .then(function(res) {
+      return res.data;
+    });
+  }
+
 
   return {
     getSongById: getSongById,
     getSongs: getSongs,
-    getChartById: getChartById
+    getChartById: getChartById,
+    generateChart: generateChart
   };
 
 });

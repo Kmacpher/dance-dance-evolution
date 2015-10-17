@@ -1,0 +1,29 @@
+{
+	"metadata": {
+		"#TITLE": "",
+		"#SUBTITLE": "",
+		"#ARTIST": "",
+		"#TITLETRANSLIT": "",
+		"#SUBTITLETRANSLIT": "",
+		"#ARTISTTRANSLIT": "",
+		"#CREDIT": "",
+		"#BANNER": "",
+		"#BACKGROUND": "",
+		"#LYRICSPATH": "",
+		"#CDTITLE": "",
+		"#MUSIC": "",
+		"#OFFSET": 0,
+		"#SAMPLESTART": 0,
+		"#SAMPLELENGTH": 12,
+		"#SELECTABLE": "YES",
+		"#DISPLAYBPM": "",
+		"#BPMS": "",
+		"#STOPS": "",
+		"#BGCHANGES": ""		
+	},
+	"charts": {
+		"dance-single": {
+
+		}
+	}
+}

@@ -4,6 +4,7 @@ var multipart = require('connect-multiparty');
 var multipartMiddleware = multipart();
 var fs = require('fs');
 var readSM = require('../../../sm-parser').readSM;
+var buildSM = require('../../../sm-builder').buildSM;
 var mongoose = require('mongoose');
 var Song = mongoose.model('Song');
 var StepChart = mongoose.model('StepChart');
@@ -153,6 +154,11 @@ router.post('/upload', multipartMiddleware, function(req, res, next) {
 
 
 });
+
+router.post('/autogen', function(req, res, next) {
+    buildSM(req.body);
+    //console.log(req.body);
+})
 
 
 

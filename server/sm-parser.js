@@ -15,7 +15,14 @@ function readSM(title) {
     var filePath = path.join(__dirname, '..', 'browser', 'sm', title);
     var data = fs.readFileSync(filePath, 'utf8');
 
+
     var sections = data.split(sectionSplit);
+
+    // data.split('').forEach(function(c) {
+    //     if (c === '\r') c = '\\r';
+    //     if (c === '\n') c = '\\n';
+    //     process.stdout.write(c)
+    // })
 
     var metadataStr = sections[0].split('\r\n').filter(function(line) {
         var firstChar = line.trim().charAt(0);

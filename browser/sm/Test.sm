@@ -1,0 +1,74 @@
+#TITLE:Test;
+#SUBTITLE:;
+#ARTIST:DDE;
+#TITLETRANSLIT:;
+#SUBTITLETRANSLIT:;
+#ARTISTTRANSLIT:;
+#CREDIT:;
+#BANNER:;
+#BACKGROUND:;
+#LYRICSPATH:;
+#CDTITLE:;
+#MUSIC:;
+#OFFSET:0.000;
+#SAMPLESTART:0.000;
+#SAMPLELENGTH:12.000;
+#SELECTABLE:YES;
+#DISPLAYBPM:;
+#BPMS:;
+#STOPS:;
+#BGCHANGES:;
+
+//---------------dance-single - ----------------
+#NOTES:
+     dance-single:
+     :
+     Beginner:
+     3:
+     0.000,0.000,0.000,0.000,0.000:
+0000
+0000
+0000
+0000
+,
+0000
+0000
+0000
+0000
+;
+
+//---------------dance-single - ----------------
+#NOTES:
+     dance-single:
+     :
+     Easy:
+     5:
+     0.000,0.000,0.000,0.000,0.000:
+0000
+0000
+0000
+0000
+,
+0000
+0000
+0000
+0000
+;
+
+//---------------dance-single - ----------------
+#NOTES:
+     dance-single:
+     :
+     Medium:
+     7:
+     0.000,0.000,0.000,0.000,0.000:
+0000
+0000
+0000
+0000
+,
+0000
+0000
+0000
+0000
+;

@@ -1,0 +1,40 @@
+<div id='autogen'>
+	<div class="container">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h2>- Generate your own chart! -</h2>
+			</div>
+
+
+			<div>
+				<form name="form">
+					<div>
+						<span>Title: </span>
+						<input type="text" ng-model="sm.title" required/>
+					</div>
+					<div>
+						<span>Artist: </span>
+						<input type="text" ng-model="sm.artist"/>
+					</div>
+					<div>
+						<span>Beginner Level: </span>
+						<input type="number" ng-model="sm.Beginner"/>
+					</div>
+					<div>
+						<span>Easy Level: </span>
+						<input type="number" ng-model="sm.Easy"/>
+					</div>
+					<div>
+						<span>Medium Level: </span>
+						<input type="number" ng-model="sm.Medium"/>
+					</div>
+					<div>
+						<button type="submit" class="btn btn-success" ng-click="submit()">Generate!</button>
+					</div>
+				</form>
+			</div>
+
+			<pre>{{ sm | json }}</pre>
+		</div>
+	</div>
+</div>
