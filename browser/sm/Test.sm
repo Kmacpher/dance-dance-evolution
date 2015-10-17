@@ -1,6 +1,6 @@
-#TITLE:Test;
+#TITLE:test;
 #SUBTITLE:;
-#ARTIST:DDE;
+#ARTIST:lol;
 #TITLETRANSLIT:;
 #SUBTITLETRANSLIT:;
 #ARTISTTRANSLIT:;
@@ -24,7 +24,7 @@
      dance-single:
      :
      Beginner:
-     3:
+     2:
      0.000,0.000,0.000,0.000,0.000:
 0000
 0000
@@ -42,7 +42,7 @@
      dance-single:
      :
      Easy:
-     5:
+     4:
      0.000,0.000,0.000,0.000,0.000:
 0000
 0000
@@ -60,7 +60,7 @@
      dance-single:
      :
      Medium:
-     7:
+     6:
      0.000,0.000,0.000,0.000,0.000:
 0000
 0000

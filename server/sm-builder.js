@@ -67,7 +67,7 @@ function testBuild(title, someText) {
 
 module.exports = {
 	buildSM: buildSM
-}
+};
 
 
 // for running as bash script

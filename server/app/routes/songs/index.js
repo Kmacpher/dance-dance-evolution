@@ -156,9 +156,10 @@ router.post('/upload', multipartMiddleware, function(req, res, next) {
 });
 
 router.post('/autogen', function(req, res, next) {
-    buildSM(req.body);
+    require('../../../sm-builder').buildSM(req.body);
     //console.log(req.body);
 })
+
 
 
 
