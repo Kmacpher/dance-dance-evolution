@@ -1,0 +1,42 @@
+#highScoreContainer {
+
+  width: 70%;
+  margin: 2% auto;
+
+  hr {
+    width: 70%;
+    margin: 10px auto;
+  }
+
+  h3 {
+    color: #ea4c88;
+    font-family: 'EchoDeco';
+    text-align: center;
+    font-size: 35px;
+  }
+
+  h2 {
+    font-size: 50px;
+    color: #ea4c88;
+    font-family: 'EchoDeco';
+    text-align: center;
+    margin-top: 0;
+  }
+
+  .titles {
+    padding-bottom: 0;
+  }
+
+  .score-item {
+    font-family: petit;
+    text-align: center;
+    color: lightgray;
+    h4 {
+      font-size: 35px;
+    }
+    
+  }
+
+
+
+}

@@ -1,0 +1,29 @@
+<div id='highScoreContainer'>
+<span>
+  
+    <h1>High Scores!</h1>
+    <h2>{{song.title}}</h2>
+    <div class="scoreList">
+      <div class='row titles'>
+        <h3 class='col-sm-6'>Player</h3>
+        <h3 class='col-sm-5'>Score</h3>
+      </div>
+      <hr>
+      <div>
+        <div ng-repeat="scoreObj in highScores">
+          <div class='row score-item'>
+            <h4 class='col-sm-6'>{{scoreObj.name}}</h3>
+            <h4 class='col-sm-5'>{{scoreObj.score}}</h3>
+          </div>
+          <hr>
+            
+        </div>
+      </div>
+       
+    </div>
+</span>
+
+
+
+
+</div>

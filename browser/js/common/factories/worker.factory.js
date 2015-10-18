@@ -68,7 +68,7 @@ app.factory('WorkerFactory', function (ScoreFactory, $timeout, ToneFactory, Arro
 
     }
 
-    TheWorker.prototype.handleMessages = function ($scope, arrows, tone, numPlayer) {
+    TheWorker.prototype.handleMessages = function ($scope, arrows, tone, numPlayer, songId) {
         var self = this;
         var time = {
             timer: null,
@@ -99,7 +99,7 @@ app.factory('WorkerFactory', function (ScoreFactory, $timeout, ToneFactory, Arro
             }else if (e.data.endSong) {
                 if(numPlayer === 1) {
                     setTimeout(() => {
-                        $state.go('results');
+                        $state.go('results', {songId: songId});
                         tone.stop();
                         self.worker.terminate();
                         ArrowFactory.killTimeline();
@@ -146,8 +146,8 @@ app.factory('WorkerFactory', function (ScoreFactory, $timeout, ToneFactory, Arro
     TheWorker.prototype.handleKeyPress = function (e, tone, startTime) {
         var button = keyConfigFactory.getButton(e); // {player: 1, name: 'up'}, where 1 is player 2 and up is the direction
         // this checks to make sure the key you pressed wasn't logged as undefined
-        if (button) e.preventDefault();
-        else return;
+        // if (button) e.preventDefault();
+        if (!button) return;
         // this makes sure the player who pressed this button commands this worker
 
         if (button.name === 'escape') {

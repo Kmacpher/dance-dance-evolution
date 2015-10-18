@@ -1,4 +1,4 @@
-app.factory('ScoreFactory', function() {
+app.factory('ScoreFactory', function($http) {
 
     function playerGuy (stepChart) {
         this.score = 0;
@@ -209,6 +209,33 @@ app.factory('ScoreFactory', function() {
         return ACCURACYCOLORS[acc];
     }
 
+    function getHighScores(songId) {
+        return $http.get('/api/songs/'+songId+'/highScores')
+        .then(function(res) {
+            return res.data;
+        });
+    }
+
+    function isHighScore(score, highScores) {
+        return (highScores.length < 5 || score > highScores[length-1].score) 
+    }
+
+    function sortHighScores(highScores) {
+        return highScores.sort((a, b) => b.score-a.score);
+    }
+
+    function setHighScore(highScores, songId, name, score) {
+        var score = score || 0;
+        var scoreObj = {name: name, score: score};
+        if(highScores.length < 5) highScores.push(scoreObj);
+        else highScores.splice(-1, 1, scoreObj);
+
+        $http.put('/api/songs/'+songId+'/highScores', {highScores: sortHighScores(highScores)})
+        .then(function(res) {
+            return res.data;
+        });
+    }
+
     return {
         addScore: addScore,
         addCombo: addCombo,
@@ -223,6 +250,9 @@ app.factory('ScoreFactory', function() {
         getAccuracy: getAccuracy,
         setStepChart: setStepChart,
         getAccuracyColors: getAccuracyColors,
-        allPlayerGuys: allPlayerGuys
+        allPlayerGuys: allPlayerGuys,
+        getHighScores: getHighScores,
+        isHighScore: isHighScore,
+        setHighScore: setHighScore
     };
 });

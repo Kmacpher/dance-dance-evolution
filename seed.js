@@ -69,7 +69,7 @@ function createStepCharts(parsedSM) {
               };
             }
 
-
+            highScores = [{name: 'Complete n00b', score: 500000}, {name: 'An Okay Player', score: 700000}, {name: 'Pretty Awesome', score: 900000}, {name: 'The One To Beat', score: 950000}]
 
             return Song.create({
                 title: parsedSM.metadata.TITLE,
@@ -83,7 +83,8 @@ function createStepCharts(parsedSM) {
                 sampleLength: parsedSM.metadata.SAMPLELENGTH,
                 banner: parsedSM.metadata.BANNER,
                 background: parsedSM.metadata.BACKGROUND,
-                Charts: chartsObj
+                Charts: chartsObj,
+                highScores: highScores
             });
 
         });

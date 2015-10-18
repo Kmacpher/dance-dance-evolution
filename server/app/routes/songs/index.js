@@ -77,6 +77,21 @@ router.get('/:id', function(req, res, next) {
     }).then(null, next);
 });
 
+router.get('/:id/highScores', function(req, res, next) {
+    Song.findById(req.params.id)
+    .then(function(song) {
+        res.send(song.highScores);
+    }).then(null, next);
+});
+
+router.put('/:id/highScores', function(req, res, next) {
+    console.log('scores in body', req.body.highScores);
+    Song.update({_id: req.params.id}, {$set: {highScores: req.body.highScores}})
+    .then(function(song) {
+        res.status(201).end();
+    }).then(null, next);
+});
+
 router.post('/upload', multipartMiddleware, function(req, res, next) {
 
 
