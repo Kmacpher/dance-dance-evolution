@@ -27,7 +27,7 @@ Dance Dance Evolution is a version of [StepMania](https://github.com/stepmania/s
 [![Sean Johnston](https://media.licdn.com/mpr/mpr/shrinknp_400_400/AAEAAQAAAAAAAAbRAAAAJGIwOTc3ZTcwLTA2ZDAtNGYwNy04NTdjLTk3ZTYwYzEzYzAwYQ.jpg)](https://www.linkedin.com/in/sbjohnston)
 [![Jay Lee](https://media.licdn.com/mpr/mpr/shrinknp_400_400/AAEAAQAAAAAAAAVuAAAAJGFiNGM5NTZiLWZlYjQtNDJjYi04ODQyLTQyZTlkYWM5NDhlOA.jpg)](https://www.linkedin.com/in/jl975)
 [![Kim-Hung Leung](https://media.licdn.com/mpr/mpr/shrinknp_400_400/AAEAAQAAAAAAAAUdAAAAJDAzMjM5YmRkLTNmNDItNDJlMi05MTZiLTRhN2RhNDQ2OTRkNA.jpg)](https://www.linkedin.com/in/kimhungleung)
-[![Karen MacPherson](http://i.imgur.com/GP3nJue.jpg)](https://www.linkedin.com/pub/karen-macpherson/48/641/307)
+[![Karen MacPherson](http://i.imgur.com/GP3nJue.jpg)](https://www.linkedin.com/in/karenmacpherson)
 [![Jimin Sung](http://i.imgur.com/CLfld70.jpg)](https://www.linkedin.com/in/jiminsung)
 
 ## Screenshots
