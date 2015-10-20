@@ -1,4 +1,4 @@
-# Dance Dance Evolution
+# <a href="http://www.dancedanceevolution.com">Dance Dance Evolution</a>
 
 <!-- [![Live Demo](https://img.shields.io/badge/demo-online-green.svg)](http://www.dancedanceevolution.com) -->
 [![Live Demo](http://i.imgur.com/84jKsei.png)](http://www.dancedanceevolution.com)
