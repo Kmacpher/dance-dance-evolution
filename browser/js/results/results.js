@@ -31,6 +31,7 @@ app.controller('ResultsCtrl', function($scope, player, percent, score, ScoreFact
     $scope.percent = percent;
     $scope.score = parseInt(score);
 
+
     
     //need is high score separate from putting it in
     var isHighScore = ScoreFactory.isHighScore($scope.score, highScores);

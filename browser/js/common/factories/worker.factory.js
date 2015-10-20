@@ -147,7 +147,8 @@ app.factory('WorkerFactory', function (ScoreFactory, $timeout, ToneFactory, Arro
         var button = keyConfigFactory.getButton(e); // {player: 1, name: 'up'}, where 1 is player 2 and up is the direction
         // this checks to make sure the key you pressed wasn't logged as undefined
         // if (button) e.preventDefault();
-        if (!button) return;
+        if (!button || !button.name) return;
+
         // this makes sure the player who pressed this button commands this worker
 
         if (button.name === 'escape') {

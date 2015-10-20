@@ -217,7 +217,7 @@ app.factory('ScoreFactory', function($http) {
     }
 
     function isHighScore(score, highScores) {
-        return (highScores.length < 5 || score > highScores[length-1].score) 
+        return (highScores.length < 5 || score > highScores[highScores.length-1].score) 
     }
 
     function sortHighScores(highScores) {

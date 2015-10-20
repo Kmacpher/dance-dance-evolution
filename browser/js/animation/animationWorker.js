@@ -184,7 +184,7 @@ var checkIfFreeze = function (dir) {
 
 var respondToKey = function(time, dir) {
     var thisChart = chart[dir];
-    if (thisChart.pointer >= thisChart.list.length) return;
+    if (thisChart.pointer > thisChart.list.length) return;
     var nextOne = thisChart.list[thisChart.pointer];
 
     if (time > nextOne.time + TIMING_WINDOW )
