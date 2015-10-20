@@ -14,10 +14,10 @@ Dance Dance Evolution is a version of StepMania that lives entirely in the brows
 - Two player mode
 - Custom keybinding
 - Arrow speed modifiers
+- Dynamic animations to song data
 
 ## Coming Soon
 - Automatic course generation based on any song
-- Dynamic animations to song data
 
 ## How To Play
 - Use arrow keys for navigation, Enter to select, Escape to exit
@@ -31,7 +31,7 @@ Dance Dance Evolution is a version of StepMania that lives entirely in the brows
 [![Jimin Sung](http://i.imgur.com/CLfld70.jpg)](https://www.linkedin.com/in/jiminsung)
 
 ## Screenshots
-![Start Splash Page](http://imgur.com/gVtd3pS.png)
+![Start Splash Page](http://i.imgur.com/Jql6njL.png)
 ![Main Menu](http://imgur.com/5dhHCcU.png)
 ![Choose Song Difficulty](http://imgur.com/N6tPsFU.png)
 ![2 Player Mode Play](http://i.imgur.com/wz3zao3.png)
