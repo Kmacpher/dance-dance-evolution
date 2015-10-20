@@ -6,7 +6,7 @@
 [![Built with Love](http://i.imgur.com/cB5v58b.png)](http://www.dancedanceevolution.com)
 
 ## Description
-Dance Dance Evolution is a version of StepMania that lives entirely in the browser. DDE looks to pay our respects to one of our childhood favorite games while also looking to turn the page onto a new era of music-themed games.
+Dance Dance Evolution is a version of [StepMania](https://github.com/stepmania/stepmania) that lives entirely in the browser. DDE looks to pay our respects to one of our childhood favorite games while also looking to turn the page onto a new era of music-themed games.
 
 ## Features
 - Upload music and SM files
