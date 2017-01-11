@@ -63,13 +63,7 @@ app.factory('ArrowFactory', function (SexyBackFactory) {
         // including an animation offset for a possible speed modifier differential
         var startTime = chIndex * measureTime + mIndex * timePerBeat + config.animationOffset;
         this.startTime = startTime;
-        this.tween = tl.to(this.el, animationLength * 10, {top: '-900vh', ease:Linear.easeNone}, startTime);
-    }
-
-    Arrow.prototype.stopAnimation = function() {
-        //stops the animation of one arrow (use to snap to location)
-        this.tween.kill(null, this.el);
-
+        tl.to(this.el, animationLength * 10, {top: '-900vh', ease:Linear.easeNone}, startTime);
     }
 
     Arrow.addStops = function (stops, animationOffset, beatTime) {

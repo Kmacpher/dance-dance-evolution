@@ -39,14 +39,9 @@ app.factory('WorkerFactory', function (ScoreFactory, $timeout, ToneFactory, Arro
 }
 
     TheWorker.prototype.handleHit = function(arrows, $scope, e, time) {
-        var arrowObj = arrows[e.data.dir][e.data.index];
         var self = this;
-        var domArrow = arrowObj.el[0];
+        var domArrow = arrows[e.data.dir][e.data.index].el[0];
         var arrow = domArrow.children[0];
-        var diff = $('.arrowP1 img').eq(0).offset().top - $(arrow).offset().top;
-        arrowObj.stopAnimation(); 
-        $(arrow).animate({top: `+=${diff}px`}, 100, function() { arrow.hidden = true});
-         
         if (e.data.freeze) {
             var freeze = domArrow.children[1];
             freeze.style.transform = 'translateY(7.5vh)';
@@ -55,7 +50,7 @@ app.factory('WorkerFactory', function (ScoreFactory, $timeout, ToneFactory, Arro
                 fader.className += " freeze-eater";
             });
         }
-       
+        arrow.hidden = true;
         //calculate the score, combo of the successful hit to display
         $scope['score'+self.player] = ScoreFactory.addScore(e.data.diff, self.player);
         // console.log('Player '+self.player+'score: ',$scope['score'+self.player]);
