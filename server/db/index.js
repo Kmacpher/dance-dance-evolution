@@ -13,6 +13,7 @@ require('./models');
 
 var startDbPromise = mongoose.connect(DATABASE_URI, {
 	useNewUrlParser: true,
+	useUnifiedTopology: true
 });
 
 console.log(chalk.yellow('Opening connection to MongoDB . . .'));
