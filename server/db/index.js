@@ -11,7 +11,9 @@ var mongoose = require('mongoose');
 // anywhere the User model needs to be used.
 require('./models');
 
-var startDbPromise = mongoose.connect(DATABASE_URI);
+var startDbPromise = mongoose.connect(DATABASE_URI, {
+	useNewUrlParser: true,
+});
 
 console.log(chalk.yellow('Opening connection to MongoDB . . .'));
 startDbPromise.then(function () {
