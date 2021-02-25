@@ -9,6 +9,7 @@ var startDb = require('./db');
 var server = require('http').createServer();
 
 var createApplication = function () {
+	console.log("Creating application");
     var app = require('./app');
     server.on('request', app); // Attach the Express application.
     require('./io')(server);   // Attach socket.io.
@@ -16,6 +17,7 @@ var createApplication = function () {
 
 var startServer = function () {
 
+    console.log("Starting server");
     var PORT = process.env.PORT || 1337;
 
     server.listen(PORT, function () {
