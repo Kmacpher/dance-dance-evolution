@@ -1,1 +1,1 @@
-web: node --harmony server/start.js
+web: node server/start.js
