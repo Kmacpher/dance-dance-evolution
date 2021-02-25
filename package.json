@@ -2,9 +2,9 @@
   "name": "FullstackGeneratedApp",
   "version": "1.0.0",
   "description": "A generated project at Fullstack Academy",
-  "main": "--harmony server/start.js",
+  "main": "--harmony server/main.js",
   "scripts": {
-    "start": "nodemon --watch server -e js,html server/start.js",
+    "start": "nodemon --watch server -e js,html server/main.js",
     "postinstall": "gulp build"
   },
   "engines": {
