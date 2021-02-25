@@ -1,3 +1,4 @@
+'use strict';
 var router = require('express').Router();
 // var sm = require('mongoose').model('Song');
 var multipart = require('connect-multiparty');

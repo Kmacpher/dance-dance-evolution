@@ -1,3 +1,4 @@
+'use strict';
 /*
 
  ES6 by default! Using http://babeljs.io
