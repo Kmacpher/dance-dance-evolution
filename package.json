@@ -51,7 +51,7 @@
     "karma-mocha": "=0.1.10",
     "karma-mocha-reporter": "=1.0.2",
     "karma-phantomjs-launcher": "=0.1.4",
-    "lodash": "=3.9.3",
+    "lodash": "=4.17.21",
     "mongodb": "=3.0.0",
     "mongoose": "~5",
     "ng-audio": "0.0.2",
