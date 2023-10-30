@@ -2,6 +2,7 @@ app.factory('SexyBackFactory', function () {
 
     // this is the variable to cancel the animation rendering when set to false
     var onLandingPage = true;
+    var squareFormationCalled = false;
 
     var scene;
 
@@ -35,7 +36,7 @@ app.factory('SexyBackFactory', function () {
           HEIGHT = window.outerHeight;
 
         //set the number of bars that can fit on the screen
-        var numBars = 350;
+        var numBars = 500;
 
         // set some camera attributes
         var VIEW_ANGLE = 80,
@@ -44,21 +45,22 @@ app.factory('SexyBackFactory', function () {
           FAR = 10000;
 
         // create a WebGL renderer
-        var renderer = new THREE.WebGLRenderer();
+        var renderer = new THREE.WebGLRenderer({ antialiasing: true });
 
         // get the DOM element to attach to - assume we've got jQuery to hand
         var $container = $('#landingPageAnimationContainer');
+        var $title = $('#title');
         $container.append(renderer.domElement);
 
-        // var camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
-        var camera = new THREE.OrthographicCamera( WIDTH / -2, WIDTH / 2, HEIGHT / 2, HEIGHT / -2, -2000, 4000);
+        var camera = new THREE.PerspectiveCamera( VIEW_ANGLE, ASPECT, NEAR, FAR);
+        // var camera = new THREE.OrthographicCamera( WIDTH / -2, WIDTH / 2, HEIGHT / 2, HEIGHT / -2, -2000, 4000);
 
         scene = new THREE.Scene();
         scene.add(camera);
 
-        camera.position.z = 500;
+        camera.position.z = 800;
         camera.position.x = 0;
-        camera.position.y = 300;
+        camera.position.y = 800;
 
         renderer.setSize(WIDTH, HEIGHT);
         renderer.setClearColor( 0x2c3338, 1);
@@ -69,6 +71,7 @@ app.factory('SexyBackFactory', function () {
         var analyser = context.createAnalyser();
         var radius = 600;
         var angle = (2 * Math.PI) / numBars;
+        var allCubesWave = []; //this is only needed for the cubeWaveFormation
         var formations = [circleFormation, lineFormation, quarterFormation];
 
         function circleFormation() {
@@ -105,7 +108,7 @@ app.factory('SexyBackFactory', function () {
         function quarterFormation() {
             var quarters = Math.floor(cubes.length / 4)
             var angleQuarter = 2 * Math.PI / quarters;
-            var radiusQuarter = 200;
+            var radiusQuarter = 300;
             var theCorner = {
                 width: WIDTH / 4,
                 height: WIDTH/ 4
@@ -132,9 +135,69 @@ app.factory('SexyBackFactory', function () {
             });
         }
 
-        // function armyFormation() {
-        //
-        // }
+        function armyFormation() {
+            var totalCircles = 50;
+            var numCircleRow = 10;
+            var eachCircle = cubes.length / totalCircles;
+            var angleArmy = (2 * Math.PI) / eachCircle;
+            var radiusArmy = 120;
+            var offZ = -2000;
+            var offX = -2000;
+            var j = 0; // this number is the circle that we are constructing
+            var v = 0; // this number is the v-th bar in that circle
+            var p = 0; // this is the z-index multiplier
+            for(var i = 0; i < numBars; i++) {
+                if(v % eachCircle === 0) {
+                    console.log("ABOUT TO TRANSITION TO NEW CIRCLE: ", j)
+                    v = 0;
+                    j++;
+                }
+                if(j % numCircleRow === 0) {
+                    j = 1;
+                    console.log("value of P: ", p, 10 % 10, 9 % 10)
+                    p++;
+
+                }
+                cubes[i].position.x = radiusArmy * Math.sin(angleArmy * v) + offX + (j * 500);
+                cubes[i].position.z = radiusArmy * Math.cos(angleArmy * v) + offZ + (p * 500);
+                v++;
+            };
+        };
+
+        function cubeWaveFormation() {
+            var rowLength = 25;
+            var offX = -500;
+            for(var i = 0; i < rowLength; i++) {
+              cubes[i].position.x = (i * 50) + offX;
+              allCubesWave[i] = [];
+              for(var k = 0; k < rowLength; k++) {
+                var newCube = cubes[i].clone();
+                console.log(newCube.position.x)
+                scene.add(newCube);
+                newCube.position.z = (k * 50);
+                allCubesWave[i].push(newCube);
+              };
+            };
+        }
+
+        function squareFormation() {
+            var squareFormationCalled = true;
+            var rowLength = 25;
+            var j = 0; // this is equal to column
+            var k = 0; // this is equal to row
+            var offX = -500;
+            var offZ = -500;
+            for(var i = 0; i < numBars; i++) {
+              if(i % rowLength === 0) {
+                j = 0;
+                k++;
+              };
+              cubes[i].position.x = (j * 50) + offX;
+              cubes[i].position.z = (k * 50) + offZ;
+              j++;
+
+            };
+        };
 
         var makeCubes = function(numBars) {
             for(var i = 0; i < numBars; i++) {
@@ -144,7 +207,10 @@ app.factory('SexyBackFactory', function () {
               groupCubes.add(cube)
               cubes.push(cube);
             }
-            quarterFormation();
+            // cubeWaveFormation();
+            // squareFormation();
+            armyFormation();
+            // quarterFormation();
             // circleFormation();
             // doubleCircleFormation();
             // formations[Math.floor(Math.random() * formations.length)]();
@@ -162,7 +228,7 @@ app.factory('SexyBackFactory', function () {
               var freqByteData = new Uint8Array(analyser.frequencyBinCount);
               analyser.getByteFrequencyData(freqByteData);
 
-              for (var i = 0; i < numBars; ++i) {
+              for (var i = 0; i < numBars; i++) {
                 var magnitude = freqByteData[i + OFFSET];
                 cubes[i].scale.y = magnitude;
                 cubes[i].position.y = magnitude / 2;
@@ -170,13 +236,12 @@ app.factory('SexyBackFactory', function () {
               window.requestAnimationFrame(RenderScene)
 
               // steady rotation
-              groupCubes.rotation.y -= 0.001;
+              groupCubes.rotation.y -= 0.003;
+              // groupCubes.rotation.z -= 0.0001;
 
               // draw!
               renderer.render(scene, camera);
-          } else {
-            return;
-          }
+          } else return;
         };
 
         (function onLoad(e) {
