@@ -98,7 +98,7 @@ export default function Game() {
       setTotalArrows(ps, stepChart.chart);
       playerRef.current = ps;
 
-      audioRef.current = new AudioEngine(`/audio/${encodeURIComponent(song.music)}`, bpm, song.offset, arrowTime);
+      audioRef.current = new AudioEngine(`/audio/${song.music}`, bpm, song.offset, arrowTime);
       arrowEngineRef.current = new ArrowEngine(1);
 
       const worker = new Worker(new URL('../game/gameWorker.ts', import.meta.url), { type: 'module' });

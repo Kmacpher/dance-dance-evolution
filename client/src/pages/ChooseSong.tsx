@@ -31,7 +31,7 @@ export default function ChooseSong() {
     const bpm = song.bpms[0].bpm;
     const arrowTime = (100 / 1) * 4 / bpm;
     const engine = new AudioEngine(
-      `/audio/${encodeURIComponent(song.music)}`, bpm, song.offset, arrowTime,
+      `/audio/${song.music}`, bpm, song.offset, arrowTime,
       song.sampleStart ?? 0, song.sampleLength ?? 12
     );
     engine.startPreview();

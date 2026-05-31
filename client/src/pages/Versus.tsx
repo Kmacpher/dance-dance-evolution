@@ -161,7 +161,7 @@ export default function Versus() {
       setTotalArrows(p1Ref.current, chart1.chart);
       setTotalArrows(p2Ref.current, chart2.chart);
 
-      audioRef.current = new AudioEngine(`/audio/${encodeURIComponent(song.music)}`, bpm, song.offset, config1.ARROW_TIME);
+      audioRef.current = new AudioEngine(`/audio/${song.music}`, bpm, song.offset, config1.ARROW_TIME);
 
       arrowsP1.current = new ArrowEngine(1);
       arrowsP2.current = new ArrowEngine(2);
