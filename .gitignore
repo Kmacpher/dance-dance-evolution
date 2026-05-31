@@ -8,3 +8,5 @@ coverage/
 illustrations/
 .env
 *.log
+debug/
+debug-legacy-game.png
