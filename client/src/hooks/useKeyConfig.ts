@@ -2,27 +2,37 @@ import { useCallback } from 'react';
 
 export type Direction = 'left' | 'down' | 'up' | 'right';
 
-const DEFAULT_P1: Record<string, Direction> = {
-  ArrowLeft: 'left',
-  ArrowDown: 'down',
-  ArrowUp: 'up',
-  ArrowRight: 'right',
+// Stored format is direction -> keyboard key, matching what Keybinding.tsx writes.
+const DEFAULT_P1: Record<Direction, string> = {
+  left: 'ArrowLeft',
+  down: 'ArrowDown',
+  up: 'ArrowUp',
+  right: 'ArrowRight',
 };
 
-const DEFAULT_P2: Record<string, Direction> = {
-  a: 'left',
-  s: 'down',
-  w: 'up',
-  d: 'right',
+const DEFAULT_P2: Record<Direction, string> = {
+  left: 'a',
+  down: 's',
+  up: 'w',
+  right: 'd',
 };
 
-function loadConfig(key: string, defaults: Record<string, Direction>): Record<string, Direction> {
+function loadConfig(key: string, defaults: Record<Direction, string>): Record<Direction, string> {
   try {
     const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : defaults;
+    return raw ? { ...defaults, ...JSON.parse(raw) } : defaults;
   } catch {
     return defaults;
   }
+}
+
+// Build a key -> direction lookup from the direction -> key config.
+function reverse(config: Record<Direction, string>): Record<string, Direction> {
+  const out: Record<string, Direction> = {};
+  (Object.keys(config) as Direction[]).forEach((dir) => {
+    out[config[dir]] = dir;
+  });
+  return out;
 }
 
 export function useKeyConfig() {
@@ -34,8 +44,10 @@ export function useKeyConfig() {
       if (e.key === 'Enter') return { player: 0, name: 'enter' };
       if (e.key === 'Escape') return { player: 0, name: 'escape' };
 
-      if (p1[e.key]) return { player: 0, name: p1[e.key] };
-      if (p2[e.key]) return { player: 1, name: p2[e.key] };
+      const p1Lookup = reverse(p1);
+      const p2Lookup = reverse(p2);
+      if (p1Lookup[e.key]) return { player: 0, name: p1Lookup[e.key] };
+      if (p2Lookup[e.key]) return { player: 1, name: p2Lookup[e.key] };
       return null;
     },
     [p1, p2]
