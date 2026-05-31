@@ -1,0 +1,351 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom fonts served as static assets from the original browser/img/font/ directory */
+@font-face {
+  font-family: 'EchoDeco';
+  src: url('/img/font/EchoDeco.ttf');
+}
+@font-face {
+  font-family: 'petit';
+  src: url('/img/font/petit.otf');
+}
+@font-face {
+  font-family: 'neon';
+  src: url('/img/font/neon.ttf');
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    cursor: none;
+  }
+
+  html, body, #root {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+  }
+
+  body {
+    background-color: #2c3338;
+    color: #606468;
+    font-family: 'Open Sans', sans-serif;
+  }
+
+  a {
+    color: #eee;
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  /* Restore cursor on interactive elements */
+  button, input, a, select, [role="button"] {
+    cursor: pointer;
+  }
+  input[type="text"], input[type="email"], input[type="password"] {
+    cursor: text;
+  }
+}
+
+/* ── Page transition (replaces Angular ng-enter/ng-leave) ─────────────── */
+.page-enter {
+  opacity: 0;
+  transform: scale3d(0, 0, 0);
+}
+.page-enter-active {
+  opacity: 1;
+  transform: scale3d(1, 1, 1);
+  transition: all 0.3s ease-in-out;
+}
+
+/* ── Shared layout ────────────────────────────────────────────────────── */
+.wrap {
+  margin: 0 auto;
+  max-width: 75%;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+/* ── Buttons (matching original .btn.outline style) ───────────────────── */
+.btn-dde {
+  border-radius: 24px;
+  background: none;
+  padding: 12px 22px;
+  border: 2px solid #2DDEFF;
+  color: #2DDEFF;
+  transition: color 0.2s, border-color 0.2s;
+  font-family: 'Open Sans', sans-serif;
+}
+.btn-dde:hover,
+.btn-dde.active {
+  color: white;
+  border-color: white;
+}
+.btn-dde-pink {
+  background-color: #ea4c88;
+  color: #eee;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-radius: 4px;
+  padding: 1rem;
+  transition: background-color 0.2s;
+  border: none;
+}
+.btn-dde-pink:hover {
+  background-color: #d44179;
+}
+
+/* ── Video / image backgrounds ────────────────────────────────────────── */
+#video-landing,
+#bg-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+#bg-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  min-width: 100%;
+  overflow: hidden;
+  opacity: 0.7;
+  z-index: 0;
+}
+
+/* ── Game page ────────────────────────────────────────────────────────── */
+.animContainer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+}
+
+#animationJSContainer {
+  width: 100%;
+  /* Viewport-based height: the ancestors (<main>) have no explicit height, so
+     `height: 100%` here resolved to 0 and `overflow-hidden` clipped the whole
+     play area. Subtract the 56px navbar that <main className="pt-14"> offsets. */
+  height: calc(100vh - 56px);
+  position: relative;
+}
+
+/* Frequency visualizer bars */
+.frequencyOpacityAnimation {
+  height: 100%;
+  width: 20px;
+  display: inline-block;
+  background-color: black;
+  opacity: 0.6;
+  color: black;
+}
+
+/* Arrow lane container */
+.arrow-col {
+  height: 100vh;
+  position: relative;
+  padding: 0;
+  overflow: hidden;
+}
+
+/* Falling arrow */
+.arrow {
+  padding-top: 10%;
+  position: absolute;
+  top: 100vh;
+  transition: opacity 0.2s;
+  width: 100%;
+  z-index: 6;
+  text-align: center;
+}
+.arrow img {
+  position: relative;
+  z-index: 5;
+  height: 15vh;
+}
+
+/* Target zone indicator */
+.arrowPlace {
+  padding-top: 10%;
+  position: absolute;
+  top: 0;
+  transition: opacity 0.2s;
+  width: 100%;
+  z-index: 100;
+  text-align: center;
+}
+.arrowPlace img {
+  position: relative;
+  z-index: 100;
+  height: 15vh;
+  opacity: 0.6;
+}
+.arrowPlacePressed img {
+  opacity: 1;
+}
+
+/* Freeze hold bar */
+.freeze {
+  margin: auto;
+  z-index: 3;
+  width: 10vh;
+  transform: translateY(-7.5vh);
+  background-image: url('/img/arrows/freeze.png');
+  background-repeat: repeat-y;
+  background-size: 100%;
+}
+
+/* Top gradient that arrows slide under */
+.fader {
+  position: absolute;
+  top: -5%;
+  height: 14%;
+  width: 100%;
+  background: linear-gradient(0deg, rgba(30, 30, 30, 0), rgba(30, 30, 30, 1));
+  z-index: 10;
+}
+.fader.freeze-eater {
+  background-color: rgba(30, 30, 30, 1);
+}
+
+/* Solid block where target arrows sit */
+.chute {
+  position: absolute;
+  top: -5%;
+  height: 12.5%;
+  width: 100%;
+  background: rgba(30, 30, 30, 1);
+  z-index: 4;
+}
+.under-chute {
+  position: absolute;
+  top: 7.5%;
+  height: 15.5%;
+  width: 100%;
+  background: linear-gradient(0deg, rgba(30, 30, 30, 0), rgba(30, 30, 30, 1));
+  z-index: 4;
+}
+.chute-right { width: 147%; }
+.chute-left  { width: 147%; left: -47%; }
+
+/* Arrow lane background */
+.arrow-lane {
+  position: relative;
+  height: 100vh;
+  /* Explicit width so the flex-1 columns have something to size against —
+     the receptor/falling arrows are absolutely positioned (0 in-flow width),
+     so without this the columns collapse to 0. Matches the original's
+     centered ~66%-wide lane (Bootstrap col-sm-offset-2 col-sm-8). */
+  width: 60vw;
+  background-color: rgba(30, 30, 30, 0.7);
+  z-index: 1;
+}
+
+/* Each falling/receptor arrow column gets an equal quarter of the lane */
+.arrow-col {
+  min-width: 0;
+}
+
+/* Accuracy text */
+.accuracy-text {
+  font-family: 'neon', sans-serif;
+  font-size: 8vh;
+  position: absolute;
+  top: 50%;
+  left: 40%;
+  width: 100%;
+  color: white;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ── Main Menu ────────────────────────────────────────────────────────── */
+.menuX {
+  font-family: 'EchoDeco', sans-serif;
+  font-size: 50pt;
+  line-height: 80px;
+  color: #ea4c88;
+  text-align: center;
+  cursor: pointer;
+  margin-top: 3vh;
+  transition: color 0.2s, font-size 0.1s;
+}
+.menuX:hover,
+.menuX.activeChoice {
+  font-size: 60pt;
+  color: #3E98DF;
+}
+
+/* ── Choose Song carousel items ───────────────────────────────────────── */
+.carouselItemInner {
+  background-color: rgba(234, 76, 136, 0.75);
+  color: #eee;
+  font-size: 30px;
+  text-align: center;
+  padding-top: 50px;
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+.carouselItemInner:hover {
+  background-color: rgba(212, 65, 121, 0.75);
+}
+.activeSong {
+  background-color: #E9A92E;
+}
+
+/* ── Form styling (login / signup) ───────────────────────────────────── */
+.form-field {
+  display: flex;
+  margin-bottom: 2rem;
+}
+.form-label {
+  background-color: #363b41;
+  border-radius: 0.25rem 0 0 0.25rem;
+  padding: 1rem 1.25rem;
+  color: #606468;
+}
+.form-input {
+  flex: 1;
+  background-color: #3b4148;
+  border-radius: 0 0.25rem 0.25rem 0;
+  padding: 1rem;
+  color: inherit;
+  border: 0;
+  outline: 0;
+  transition: background-color 0.3s;
+  font: inherit;
+}
+.form-input:focus,
+.form-input:hover {
+  background-color: #434A52;
+}
+
+/* ── Results ──────────────────────────────────────────────────────────── */
+.accuracyDesc {
+  font-family: 'EchoDeco', sans-serif;
+  font-size: 4.5vh;
+  color: #ea4c88;
+}
+
+/* ── High scores ──────────────────────────────────────────────────────── */
+.score-item {
+  font-family: 'petit', sans-serif;
+  text-align: center;
+  color: lightgray;
+}
+
+/* ── Loading screen ───────────────────────────────────────────────────── */
+.loading-screen {
+  width: 100%;
+  height: 100%;
+  background-color: black;
+  border: 5px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

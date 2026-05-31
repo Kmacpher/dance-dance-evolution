@@ -1,7 +1,10 @@
 .idea
-node_modules
+node_modules/
 npm-debug.log
-public
+server/public/
+server/dist/
 .DS_Store
-coverage
-illustrations
+coverage/
+illustrations/
+.env
+*.log
