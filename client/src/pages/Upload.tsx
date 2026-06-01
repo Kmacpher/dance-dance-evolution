@@ -32,7 +32,7 @@ export default function Upload() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-56px)] bg-black flex flex-col items-center justify-center px-4">
+    <div className="min-h-[100vh] bg-black flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-md space-y-6">
         <h2 className="font-game text-dde-cyan text-lg text-center">UPLOAD SONG</h2>
         <p className="font-game text-xs text-gray-500 text-center">

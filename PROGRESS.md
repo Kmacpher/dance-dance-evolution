@@ -30,29 +30,29 @@ Earlier engine/layout fixes (folded into the port commit) are recorded in agent 
 Tailwind/PostCSS emitting zero utilities, arrow animation travel distance, `.arrowPlace`
 position, `.animContainer`/`.arrow-lane`/`#animationJSContainer` sizing.
 
-## In progress (interrupted mid-task)
+## Menu/navigation arrow-key support + carousel — DONE (2026-05-31)
 
-**Menu/navigation arrow-key support + carousel.** I had just finished *reading* the legacy
-implementation to port it faithfully; no code written yet. Three pieces requested:
+All three pieces implemented in `client/src/pages/`; client `tsc --noEmit` passes clean.
+Everything routes keyboard input through `useKeyConfig().getButton(e)` (rebind- and
+WASD/P2-aware). GSAP animation doesn't paint in headless, so verify the carousel in a
+real browser.
 
-1. **MainMenu arrow-key nav** — currently mouse-only (`client/src/pages/MainMenu.tsx`).
-   Legacy (`mainMenu.js`): up/down move `activeChoice` (wrapping), Enter confirms +
-   `start` sfx, up/down play `blop` sfx, Escape → home + `back` sfx.
+1. **MainMenu arrow-key nav** — DONE (`MainMenu.tsx`). up/down move `activeChoice`
+   (wrapping) + `blop`, Enter confirms + `start`, Escape → home + `back`.
 
-2. **ChooseSong 3D carousel** — currently a plain scrolling list
-   (`client/src/pages/ChooseSong.tsx`). Legacy is a rotating 3D carousel
-   (`carousel.factory.js`, uses GSAP/TweenMax + CSS 3D transforms): left/right rotate
-   between songs (`blop`), Enter selects + zooms the song forward (`start`) then reveals
-   the difficulty picker, Escape backs out. Difficulty picker: up/down change level
-   (`blop`), left/right change speed mod (1–4, 0.5 steps), Enter loads the song.
+2. **ChooseSong 3D carousel** — DONE (`ChooseSong.tsx`). Replaced the plain list with a
+   GSAP-rotated 3D cylinder (perspective + `rotateY(i·θ) translateZ(radius)`, θ = 360/N,
+   unbounded index for infinite wrap). Carousel phase: ←→ rotate + `blop`, Enter zooms
+   the front card forward + `start` → reveals the difficulty picker, Esc → menu + `back`.
+   Difficulty phase: ↑↓ change difficulty + `blop`, ←→ change speed mod (1–4, 0.5 steps)
+   + `blop`, Enter loads, Esc back to carousel. P1 = arrows, P2 = WASD (via `btn.player`).
+   Audio preview is debounced (350 ms) so fast spinning doesn't load every song. The
+   legacy groove-radar chart is still not ported (optional).
 
-3. **Home arrow-key nudge** — DONE in current `Home.tsx` but **differs from legacy**.
-   Legacy (`home.js`) physically *translates* each arrow image ~20px in its own
-   direction (left arrow shifts `left:-20px`, up shifts `top:-20px`, etc.) plus a
-   grayscale/brightness filter, and resets on keyup; Enter → main menu. The current
-   React version only applies a brightness/drop-shadow filter (no positional nudge) and
-   uses hardcoded `ArrowLeft`/`WASD` rather than `useKeyConfig`. **Decide:** match legacy
-   nudge, or keep the current filter-only effect.
+3. **Home arrow-key nudge** — DONE, now matches legacy (`Home.tsx`). Each arrow image
+   translates ~20px in its own *screen* direction on press (translate listed before the
+   rotate so it applies in screen space) + `grayscale(1) brightness(2)`, reset on keyup;
+   Enter → main menu. Switched from hardcoded keys to `useKeyConfig`.
 
 ### Notes for the carousel work
 - `useKeyConfig().getButton(e)` is the unified input entry point — use it everywhere

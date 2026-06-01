@@ -26,7 +26,7 @@ export default function Signup() {
   };
 
   return (
-    <div className="h-[calc(100vh-56px)] flex items-center justify-center">
+    <div className="h-[100vh] flex items-center justify-center">
       <div className="site__container w-full max-w-md px-4">
         <h1
           className="text-center text-[#ea4c88] mb-8"

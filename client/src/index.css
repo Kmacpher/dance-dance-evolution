@@ -130,8 +130,8 @@
   width: 100%;
   /* Viewport-based height: the ancestors (<main>) have no explicit height, so
      `height: 100%` here resolved to 0 and `overflow-hidden` clipped the whole
-     play area. Subtract the 56px navbar that <main className="pt-14"> offsets. */
-  height: calc(100vh - 56px);
+     play area. Full viewport now that the navbar is gone. */
+  height: 100vh;
   position: relative;
 }
 

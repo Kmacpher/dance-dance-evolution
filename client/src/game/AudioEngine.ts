@@ -3,6 +3,10 @@ import * as Tone from 'tone';
 export class AudioEngine {
   private player?: Tone.Player;
   private preview?: Tone.Player;
+  // startPreview() is async (awaits Tone.start + buffer decode). If stopPreview()
+  // is called while that's in flight, this flag makes the stop authoritative so the
+  // player never starts — otherwise rapidly switching songs leaks overlapping loops.
+  private previewCancelled = false;
   private syncOffset: number;
   private bufferPromise: Promise<Tone.ToneAudioBuffer>;
 
@@ -50,6 +54,7 @@ export class AudioEngine {
   async startPreview(): Promise<void> {
     await Tone.start();
     const buffer = await this.bufferPromise;
+    if (this.previewCancelled) return;
     this.preview = new Tone.Player({
       url: buffer,
       loop: true,
@@ -60,8 +65,10 @@ export class AudioEngine {
   }
 
   stopPreview(): void {
+    this.previewCancelled = true;
     try { this.preview?.stop(); } catch { /* already stopped */ }
     try { this.preview?.dispose(); } catch { /* already disposed */ }
+    this.preview = undefined;
   }
 
   static playSfx(name: string): void {

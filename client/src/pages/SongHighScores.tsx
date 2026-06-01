@@ -17,7 +17,7 @@ export default function SongHighScores() {
   }, [songId]);
 
   return (
-    <div className="min-h-[calc(100vh-56px)] bg-black flex flex-col items-center justify-center px-4 space-y-6">
+    <div className="min-h-[100vh] bg-black flex flex-col items-center justify-center px-4 space-y-6">
       <h2 className="font-game text-dde-cyan text-lg">LEADERBOARD</h2>
 
       {loading ? (

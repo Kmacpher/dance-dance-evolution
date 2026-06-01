@@ -61,7 +61,7 @@ export default function Keybinding() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-56px)] bg-black flex flex-col items-center justify-center px-4 space-y-8">
+    <div className="min-h-[100vh] bg-black flex flex-col items-center justify-center px-4 space-y-8">
       <h2 className="font-game text-dde-cyan text-lg">KEYBINDING</h2>
       <p className="font-game text-xs text-gray-500">Click a button then press a key to rebind</p>
 

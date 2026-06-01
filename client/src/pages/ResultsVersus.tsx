@@ -18,7 +18,7 @@ export default function ResultsVersus() {
     : null;
 
   return (
-    <div className="min-h-[calc(100vh-56px)] bg-black flex flex-col items-center justify-center space-y-8 px-4">
+    <div className="min-h-[100vh] bg-black flex flex-col items-center justify-center space-y-8 px-4">
       <h2 className="font-game text-dde-cyan text-xl">RESULTS</h2>
 
       {winner && (
