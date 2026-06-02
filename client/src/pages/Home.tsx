@@ -149,7 +149,10 @@ export default function Home() {
           >
             p
           </button>
-          <span className="text-[#2DDEFF] text-base">{playing ? 'to pause' : 'to play'}</span>
+          {/* Fixed width + left-aligned so the changing label doesn't shift the button. */}
+          <span className="text-[#2DDEFF] text-base w-[72px] text-left whitespace-nowrap">
+            {playing ? 'to pause' : 'to play'}
+          </span>
         </div>
       </div>
     </div>
