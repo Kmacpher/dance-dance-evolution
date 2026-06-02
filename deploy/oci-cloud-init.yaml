@@ -32,9 +32,19 @@ write_files:
         (command -v yum     >/dev/null && yum install -y git)
       fi
 
-      # --- Docker engine + compose plugin (cross-distro convenience script) ---
+      # --- Docker engine + compose plugin ---
       if ! command -v docker >/dev/null 2>&1; then
-        curl -fsSL https://get.docker.com | sh
+        if command -v dnf >/dev/null 2>&1; then
+          # Oracle Linux / RHEL family. Use Docker's CentOS repo (has aarch64
+          # builds). --allowerasing resolves the podman/runc conflict that
+          # ships on Oracle Linux, which the generic script trips over.
+          dnf -y install dnf-plugins-core || true
+          dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+          dnf -y install --allowerasing docker-ce docker-ce-cli containerd.io docker-compose-plugin \
+            || curl -fsSL https://get.docker.com | sh
+        else
+          curl -fsSL https://get.docker.com | sh
+        fi
       fi
       systemctl enable --now docker
 
