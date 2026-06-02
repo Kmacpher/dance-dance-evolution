@@ -1,0 +1,27 @@
+# Production stack for a single host (e.g. an OCI Always Free VM).
+# Runs the app + MongoDB together; only the app is exposed to the internet.
+#   docker compose -f docker-compose.prod.yml up -d --build
+services:
+  app:
+    build: .
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      PORT: "3000"
+      MONGODB_URI: mongodb://mongo:27017/dde
+    ports:
+      - "80:3000"
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:7
+    restart: unless-stopped
+    # No host port published — only the app (same compose network) reaches it.
+    volumes:
+      - mongo_data:/data/db
+    environment:
+      MONGO_INITDB_DATABASE: dde
+
+volumes:
+  mongo_data:

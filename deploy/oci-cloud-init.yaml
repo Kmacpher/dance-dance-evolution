@@ -1,0 +1,72 @@
+#cloud-config
+# OCI Always Free bootstrap for Dance Dance Evolution.
+# Paste this into: Create Instance -> Advanced options -> Management ->
+#   "Cloud-init script" (user_data) field.
+#
+# It installs Docker, opens port 80 at the OS level (OCI images block it by
+# default), clones the repo, builds, runs app + Mongo, and seeds the DB.
+#
+# NOTE 1 (VCN firewall): cloud-init only opens the *OS* firewall. You STILL
+#   must add an ingress rule for TCP 80 (source 0.0.0.0/0) to the subnet's
+#   Security List / NSG in the OCI console — that lives above the VM.
+# NOTE 2 (private repo): if Kmacpher/dance-dance-evolution is private, the
+#   anonymous clone below will fail. Either make it public, or change REPO to
+#   https://<GITHUB_PAT>@github.com/Kmacpher/dance-dance-evolution.git
+# Progress/logs: sudo tail -f /var/log/cloud-init-output.log
+
+write_files:
+  - path: /opt/dde-deploy.sh
+    permissions: "0755"
+    content: |
+      #!/usr/bin/env bash
+      set -euxo pipefail
+
+      REPO="https://github.com/Kmacpher/dance-dance-evolution.git"
+      BRANCH="feature/update-dde-app"
+      APP_DIR="/opt/dde"
+
+      # --- git (Ubuntu apt / Oracle Linux dnf/yum) ---
+      if ! command -v git >/dev/null 2>&1; then
+        (command -v apt-get >/dev/null && apt-get update -y && apt-get install -y git) || \
+        (command -v dnf     >/dev/null && dnf install -y git) || \
+        (command -v yum     >/dev/null && yum install -y git)
+      fi
+
+      # --- Docker engine + compose plugin (cross-distro convenience script) ---
+      if ! command -v docker >/dev/null 2>&1; then
+        curl -fsSL https://get.docker.com | sh
+      fi
+      systemctl enable --now docker
+
+      # --- Open port 80 at the OS level (the OCI gotcha) ---
+      if command -v firewall-cmd >/dev/null 2>&1 && systemctl is-active --quiet firewalld; then
+        firewall-cmd --permanent --add-port=80/tcp
+        firewall-cmd --reload
+      else
+        # Ubuntu on OCI uses iptables; insert above the default REJECT, then persist.
+        iptables -I INPUT -p tcp --dport 80 -j ACCEPT
+        if ! command -v netfilter-persistent >/dev/null 2>&1; then
+          DEBIAN_FRONTEND=noninteractive apt-get update -y || true
+          DEBIAN_FRONTEND=noninteractive apt-get install -y iptables-persistent || true
+        fi
+        netfilter-persistent save 2>/dev/null || { mkdir -p /etc/iptables && iptables-save > /etc/iptables/rules.v4; }
+      fi
+
+      # --- Code ---
+      if [ ! -d "$APP_DIR/.git" ]; then
+        git clone --branch "$BRANCH" "$REPO" "$APP_DIR"
+      fi
+      cd "$APP_DIR"
+
+      # --- Build + run (app on :80, Mongo internal) ---
+      docker compose -f docker-compose.prod.yml up -d --build
+
+      # --- Wait for the app, then seed the DB once ---
+      for _ in $(seq 1 60); do
+        curl -fsS http://localhost/ >/dev/null 2>&1 && break
+        sleep 5
+      done
+      docker compose -f docker-compose.prod.yml exec -T app node server/dist/seed.js || true
+
+runcmd:
+  - /opt/dde-deploy.sh

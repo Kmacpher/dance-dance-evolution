@@ -1,0 +1,22 @@
+node_modules
+**/node_modules
+.git
+.gitignore
+
+# Build outputs (regenerated inside the image)
+server/dist
+server/public
+client/dist
+
+# Local env / secrets (never bake into the image)
+.env
+.env.*
+!.env.example
+
+# Dev noise
+*.log
+playwright-report
+test-results
+dde-debug*
+PROGRESS.md
+NOTES-GOTCHAS.md
