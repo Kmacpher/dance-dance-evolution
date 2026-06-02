@@ -77,5 +77,4 @@ export interface GameConfig {
   BEAT_TIME: number;
   SPEED_MOD: number;
   BEAT_VH: number;
-  animationOffset: number;
 }

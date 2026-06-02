@@ -91,7 +91,6 @@ export default function Game() {
         BEAT_TIME: beatTime,
         SPEED_MOD: speedMod,
         BEAT_VH: 100 / (arrowTime / beatTime),
-        animationOffset: 0,
       };
 
       const ps = makePlayerState();
@@ -170,8 +169,8 @@ export default function Game() {
         await audioRef.current!.waitForLoad();
         if (cancelled) return;
 
-        arrowEngineRef.current!.resume();
         audioRef.current!.start();
+        arrowEngineRef.current!.resume();
 
         const startTime = Date.now() - Number(song.offset) * 1000;
         startTimeRef.current = startTime;

@@ -64,7 +64,7 @@ export class ArrowEngine {
           const dir = INDEX_TO_DIR[String(colIdx)];
           if (!dir) return;
 
-          const startTime = mIdx * measureTime + lIdx * timePerNote + config.animationOffset;
+          const startTime = mIdx * measureTime + lIdx * timePerNote;
           const note = lIdx / notes;
           const thisBeat = mIdx * 4 + note * 4;
 

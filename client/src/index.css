@@ -167,11 +167,12 @@
   position: relative;
   z-index: 5;
   height: 15vh;
+  margin: 0 auto;
 }
 
 /* Target zone indicator */
 .arrowPlace {
-  padding-top: 10%;
+  padding-top: 13%;
   position: absolute;
   top: 0;
   transition: opacity 0.2s;
@@ -184,6 +185,7 @@
   z-index: 100;
   height: 15vh;
   opacity: 0.6;
+  margin: 0 auto;
 }
 .arrowPlacePressed img {
   opacity: 1;
@@ -241,7 +243,7 @@
      the receptor/falling arrows are absolutely positioned (0 in-flow width),
      so without this the columns collapse to 0. Matches the original's
      centered ~66%-wide lane (Bootstrap col-sm-offset-2 col-sm-8). */
-  width: 60vw;
+  width: 50vw;
   background-color: rgba(30, 30, 30, 0.7);
   z-index: 1;
 }

@@ -40,10 +40,50 @@ export class AudioEngine {
     await Tone.start();
     const buffer = await this.bufferPromise;
     this.player = new Tone.Player(buffer).toDestination();
+    // Let the output device latency populate before the game schedules audio:
+    // a freshly-resumed AudioContext reports outputLatency=0 for the first
+    // ~200ms, which would defeat the latency compensation in start(). This runs
+    // behind the "GET READY" screen so it adds no perceptible startup delay.
+    await new Promise<void>((r) => setTimeout(r, 250));
   }
 
   start(): void {
-    this.player?.start(`+${this.syncOffset}`);
+    // Compensate for audio output latency — the delay between when Web Audio
+    // *schedules* a buffer and when that sound actually reaches the speakers.
+    // The arrows are driven by GSAP/rAF (latency-free), so without this the
+    // arrows reach the receptor ~tens of ms before the sound is heard and feel
+    // early. The latency is read from the live AudioContext so it self-adjusts
+    // to the user's hardware/OS (a few ms on good setups, 100ms+ on some Linux
+    // audio stacks / Bluetooth) — it is a constant time shift, not BPM-related.
+    // Tone schedules the '+x' string relative to context.now(), which includes
+    // the context lookAhead (default 0.1s). The arrows run on GSAP/rAF (wall
+    // clock, no lookAhead), so unlike a pure-Tone app the lookAhead does NOT
+    // cancel — it would push the audio ~lookAhead late vs the arrows. Subtract
+    // it so audio and arrows share the same zero. Safe: syncOffset (ARROW_TIME +
+    // offset) is hundreds of ms, so this never schedules in the past.
+    const startIn = Math.max(0, this.syncOffset - this.outputLatency() - Tone.getContext().lookAhead);
+    this.player?.start(`+${startIn}`);
+  }
+
+  /** Best runtime estimate of output latency in seconds (schedule → speaker). */
+  private outputLatency(): number {
+    // Tone 14 wraps its context with standardized-audio-context, which does not
+    // expose outputLatency / getOutputTimestamp. Reach the real native
+    // AudioContext underneath, where the device latency is reported (it only
+    // populates once the context has been running briefly — see waitForLoad's
+    // warm-up).
+    const raw = Tone.getContext().rawContext as unknown as Record<string, unknown>;
+    const ctx = (raw._nativeAudioContext || raw._nativeContext || raw) as {
+      currentTime: number;
+      outputLatency?: number;
+      baseLatency?: number;
+      getOutputTimestamp?: () => { contextTime: number };
+    };
+    try {
+      const ts = ctx.getOutputTimestamp?.();
+      if (ts && ctx.currentTime > ts.contextTime) return ctx.currentTime - ts.contextTime;
+    } catch { /* not supported — fall through */ }
+    return ctx.outputLatency || ctx.baseLatency || 0;
   }
 
   stop(): void {
