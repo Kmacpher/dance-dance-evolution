@@ -1,4 +1,4 @@
-import { Song, StepChart, HighScore, User } from '../types';
+import { Song, StepChart, HighScore } from '../types';
 
 async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const res = await fetch(url, {
@@ -14,20 +14,6 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  // Auth
-  login: (email: string, password: string) =>
-    request<User>('/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    }),
-  signup: (email: string, username: string, password: string) =>
-    request<User>('/auth/signup', {
-      method: 'POST',
-      body: JSON.stringify({ email, username, password }),
-    }),
-  logout: () => request('/auth/logout', { method: 'POST' }),
-  session: () => request<User>('/auth/session'),
-
   // Songs
   getSongs: () => request<Song[]>('/api/songs'),
   getSong: (id: string) => request<Song>(`/api/songs/${id}`),

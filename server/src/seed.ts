@@ -2,16 +2,9 @@ import 'dotenv/config';
 import fs from 'fs';
 import path from 'path';
 import { connectDb } from './db';
-import User from './db/models/User';
 import Song from './db/models/Song';
 import StepChart from './db/models/StepChart';
 import { readSM, ParsedSM } from './smParser';
-
-const SEED_USERS = [
-  { username: 'Testing',   email: 'testing@fsa.com',  password: 'password' },
-  { username: 'President', email: 'obama@gmail.com',   password: 'potus' },
-  { username: 'K',         email: 'K@gmail.com',       password: 'K' },
-];
 
 const DEFAULT_HIGH_SCORES = [
   { name: 'Complete n00b',  score: 500000 },
@@ -79,19 +72,11 @@ async function seedSongs(): Promise<void> {
   }
 }
 
-async function seedUsers(): Promise<void> {
-  for (const u of SEED_USERS) {
-    await User.create(u);
-    console.log(`  ✓ ${u.username} (${u.email})`);
-  }
-}
-
 async function main() {
   await connectDb();
 
   console.log('Clearing existing data...');
   await Promise.all([
-    User.deleteMany({}),
     Song.deleteMany({}),
     StepChart.deleteMany({}),
   ]);
@@ -99,10 +84,6 @@ async function main() {
   console.log('\nSeeding songs...');
   await seedSongs();
   console.log('Songs seeded successfully!\n');
-
-  console.log('Seeding users...');
-  await seedUsers();
-  console.log('Users seeded successfully!\n');
 
   process.exit(0);
 }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { api } from '../api';
 import { Song, Difficulty } from '../types';
@@ -19,9 +19,7 @@ type Phase = 'carousel' | 'difficulty';
 
 export default function ChooseSong() {
   const navigate = useNavigate();
-  const [params] = useSearchParams();
   const { getButton } = useKeyConfig();
-  const players = Number(params.get('players') ?? 1) as 1 | 2;
 
   const [songs, setSongs] = useState<Song[]>([]);
   // `index` is unbounded so left/right rotate the cylinder infinitely; the
@@ -29,9 +27,7 @@ export default function ChooseSong() {
   const [index, setIndex] = useState(0);
   const [phase, setPhase] = useState<Phase>('carousel');
   const [difficulty1, setDifficulty1] = useState<Difficulty>('Medium');
-  const [difficulty2, setDifficulty2] = useState<Difficulty>('Medium');
   const [speed1, setSpeed1] = useState(1);
-  const [speed2, setSpeed2] = useState(1);
 
   const stageRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<AudioEngine | null>(null);
@@ -42,9 +38,7 @@ export default function ChooseSong() {
   const indexRef = useRef(index); indexRef.current = index;
   const phaseRef = useRef(phase); phaseRef.current = phase;
   const diff1Ref = useRef(difficulty1); diff1Ref.current = difficulty1;
-  const diff2Ref = useRef(difficulty2); diff2Ref.current = difficulty2;
   const speed1Ref = useRef(speed1); speed1Ref.current = speed1;
-  const speed2Ref = useRef(speed2); speed2Ref.current = speed2;
 
   const availableDiffs = (song: Song | null) =>
     song ? DIFFICULTIES.filter((d) => song.Charts[d]) : [];
@@ -99,31 +93,25 @@ export default function ChooseSong() {
     const song = songsRef.current[mod(indexRef.current, n)];
     previewRef.current?.stopPreview();
     AudioEngine.playSfx('start');
-    if (players === 2) {
-      navigate(`/versus/${song._id}/${diff1Ref.current}/${diff2Ref.current}?mod1=${speed1Ref.current}&mod2=${speed2Ref.current}`);
-    } else {
-      navigate(`/game/${song._id}/${diff1Ref.current}?mod=${speed1Ref.current}`);
-    }
+    navigate(`/game/${song._id}/${diff1Ref.current}?mod=${speed1Ref.current}`);
   };
 
   // Keyboard control. Carousel phase: ←→ rotate, Enter selects, Esc → menu.
   // Difficulty phase: ↑↓ change difficulty, ←→ change speed, Enter loads, Esc back.
-  // Player 0 (arrows) drives P1; player 1 (WASD) drives P2.
+  // Arrows or WASD both drive the single player.
   useEffect(() => {
-    const cycleDiff = (player: 0 | 1, delta: number) => {
+    const cycleDiff = (delta: number) => {
       const song = songsRef.current[mod(indexRef.current, songsRef.current.length)];
       const avail = availableDiffs(song);
       if (!avail.length) return;
-      const cur = player === 0 ? diff1Ref.current : diff2Ref.current;
-      const next = avail[mod(Math.max(avail.indexOf(cur), 0) + delta, avail.length)];
-      (player === 0 ? setDifficulty1 : setDifficulty2)(next);
+      const next = avail[mod(Math.max(avail.indexOf(diff1Ref.current), 0) + delta, avail.length)];
+      setDifficulty1(next);
       AudioEngine.playSfx('blop');
     };
 
-    const cycleSpeed = (player: 0 | 1, delta: number) => {
-      const cur = player === 0 ? speed1Ref.current : speed2Ref.current;
-      const i = Math.min(Math.max(Math.max(SPEED_OPTIONS.indexOf(cur), 0) + delta, 0), SPEED_OPTIONS.length - 1);
-      (player === 0 ? setSpeed1 : setSpeed2)(SPEED_OPTIONS[i]);
+    const cycleSpeed = (delta: number) => {
+      const i = Math.min(Math.max(Math.max(SPEED_OPTIONS.indexOf(speed1Ref.current), 0) + delta, 0), SPEED_OPTIONS.length - 1);
+      setSpeed1(SPEED_OPTIONS[i]);
       AudioEngine.playSfx('blop');
     };
 
@@ -133,7 +121,6 @@ export default function ChooseSong() {
       if (!avail.length) return;
       AudioEngine.playSfx('start');
       setDifficulty1(avail[0]);
-      setDifficulty2(avail[0]);
       setPhase('difficulty');
     };
 
@@ -157,10 +144,10 @@ export default function ChooseSong() {
 
       // difficulty phase
       switch (btn.name) {
-        case 'up': e.preventDefault(); cycleDiff(btn.player, -1); break;
-        case 'down': e.preventDefault(); cycleDiff(btn.player, 1); break;
-        case 'left': e.preventDefault(); cycleSpeed(btn.player, -1); break;
-        case 'right': e.preventDefault(); cycleSpeed(btn.player, 1); break;
+        case 'up': e.preventDefault(); cycleDiff(-1); break;
+        case 'down': e.preventDefault(); cycleDiff(1); break;
+        case 'left': e.preventDefault(); cycleSpeed(-1); break;
+        case 'right': e.preventDefault(); cycleSpeed(1); break;
         case 'enter': e.preventDefault(); handleStart(); break;
         case 'escape': AudioEngine.playSfx('back'); setPhase('carousel'); break;
       }
@@ -169,7 +156,7 @@ export default function ChooseSong() {
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [players, getButton]);
+  }, [getButton]);
 
   const n = songs.length;
   const theta = n ? 360 / n : 0;
@@ -214,7 +201,6 @@ export default function ChooseSong() {
                   if (!avail.length) return;
                   AudioEngine.playSfx('start');
                   setDifficulty1(avail[0]);
-                  setDifficulty2(avail[0]);
                   setPhase('difficulty');
                 }}
                 style={{
@@ -261,48 +247,41 @@ export default function ChooseSong() {
       {/* Difficulty / speed picker */}
       {phase === 'difficulty' && selectedSong ? (
         <div style={{ flexShrink: 0, display: 'flex', gap: 64, justifyContent: 'center', paddingBottom: 28, color: '#b2b2b2' }}>
-          {(players === 2 ? [1, 2] : [1]).map((p) => {
-            const diff = p === 1 ? difficulty1 : difficulty2;
-            const spd = p === 1 ? speed1 : speed2;
-            const accent = p === 1 ? '#3E98DF' : '#22BD6B';
-            return (
-              <div key={p} style={{ minWidth: 360 }}>
-                <div style={{ fontFamily: 'petit', fontSize: 40, marginBottom: 4 }}>
-                  P{p} Difficulty {p === 1 ? '(↑↓)' : '(W/S)'}
-                </div>
-                {availableDiffs(selectedSong).map((d) => (
-                  <div
-                    key={d}
-                    onClick={() => (p === 1 ? setDifficulty1(d) : setDifficulty2(d))}
-                    style={{
-                      fontFamily: 'petit', cursor: 'pointer', lineHeight: 1.3,
-                      fontSize: diff === d ? 52 : 40,
-                      fontWeight: diff === d ? 'bold' : 'normal',
-                      color: diff === d ? accent : '#b2b2b2',
-                    }}
-                  >
-                    {d} {selectedSong.Charts[d]?.level}
-                  </div>
-                ))}
-                <div style={{ marginTop: 12, fontFamily: 'petit', fontSize: 36 }}>
-                  Speed {p === 1 ? '(←→)' : '(A/D)'}:{' '}
-                  {SPEED_OPTIONS.map((s) => (
-                    <span
-                      key={s}
-                      onClick={() => (p === 1 ? setSpeed1(s) : setSpeed2(s))}
-                      style={{
-                        cursor: 'pointer', marginRight: 12,
-                        color: spd === s ? '#E9A92E' : '#606468',
-                        fontSize: spd === s ? 40 : 32,
-                      }}
-                    >
-                      {s}x
-                    </span>
-                  ))}
-                </div>
+          <div style={{ minWidth: 360 }}>
+            <div style={{ fontFamily: 'petit', fontSize: 40, marginBottom: 4 }}>
+              Difficulty (↑↓)
+            </div>
+            {availableDiffs(selectedSong).map((d) => (
+              <div
+                key={d}
+                onClick={() => setDifficulty1(d)}
+                style={{
+                  fontFamily: 'petit', cursor: 'pointer', lineHeight: 1.3,
+                  fontSize: difficulty1 === d ? 52 : 40,
+                  fontWeight: difficulty1 === d ? 'bold' : 'normal',
+                  color: difficulty1 === d ? '#3E98DF' : '#b2b2b2',
+                }}
+              >
+                {d} {selectedSong.Charts[d]?.level}
               </div>
-            );
-          })}
+            ))}
+            <div style={{ marginTop: 12, fontFamily: 'petit', fontSize: 36 }}>
+              Speed (←→):{' '}
+              {SPEED_OPTIONS.map((s) => (
+                <span
+                  key={s}
+                  onClick={() => setSpeed1(s)}
+                  style={{
+                    cursor: 'pointer', marginRight: 12,
+                    color: speed1 === s ? '#E9A92E' : '#606468',
+                    fontSize: speed1 === s ? 40 : 32,
+                  }}
+                >
+                  {s}x
+                </span>
+              ))}
+            </div>
+          </div>
           <div style={{ alignSelf: 'center' }}>
             <button onClick={handleStart} className="btn-dde-pink" style={{ fontSize: 40, padding: '20px 56px' }}>
               START ⏎

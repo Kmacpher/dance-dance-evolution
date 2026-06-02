@@ -5,7 +5,6 @@ import multer from 'multer';
 import Song from '../db/models/Song';
 import StepChart from '../db/models/StepChart';
 import { readSM, ParsedSM } from '../smParser';
-import { requireAuth } from '../middleware/requireAuth';
 
 const upload = multer({ dest: '/tmp/dde-uploads/' });
 const router = Router();
@@ -38,7 +37,7 @@ router.get('/:id/highScores', async (req: Request, res: Response, next: NextFunc
   }
 });
 
-router.put('/:id/highScores', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
+router.put('/:id/highScores', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { highScores } = req.body as { highScores: { name: string; score: number }[] };
     await Song.updateOne({ _id: req.params.id }, { $set: { highScores } });
@@ -50,7 +49,6 @@ router.put('/:id/highScores', requireAuth, async (req: Request, res: Response, n
 
 router.post(
   '/upload',
-  requireAuth,
   upload.fields([
     { name: 'sm', maxCount: 1 },
     { name: 'song', maxCount: 1 },

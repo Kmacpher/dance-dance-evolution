@@ -53,12 +53,6 @@ export interface HighScore {
 
 export type Difficulty = 'Beginner' | 'Easy' | 'Medium' | 'Hard' | 'Challenge';
 
-export interface User {
-  id: string;
-  email: string;
-  username: string;
-}
-
 export interface PlayerState {
   score: number;
   combo: number;

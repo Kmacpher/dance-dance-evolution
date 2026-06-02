@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthContext } from '../context/AuthContext';
 import { AudioEngine } from '../game/AudioEngine';
 import { useKeyConfig, type Direction } from '../hooks/useKeyConfig';
 
@@ -27,14 +26,13 @@ const NUDGE: Record<Direction, string> = {
 const PRESSED_FILTER = 'grayscale(1) brightness(2)';
 
 export default function Home() {
-  const { user } = useAuthContext();
   const navigate = useNavigate();
   const { getButton } = useKeyConfig();
   const imgRefs = useRef<Partial<Record<Direction, HTMLImageElement>>>({});
 
   const handleStart = () => {
     AudioEngine.playSfx('start');
-    navigate(user ? '/menu' : '/login');
+    navigate('/menu');
   };
 
   const setArrow = (dir: Direction, pressed: boolean) => {
@@ -67,7 +65,7 @@ export default function Home() {
       window.removeEventListener('keyup', onUp);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getButton, user]);
+  }, [getButton]);
 
   return (
     <div
@@ -124,7 +122,7 @@ export default function Home() {
           onClick={handleStart}
           className="btn-dde mt-8 block mx-auto"
         >
-          {user ? 'MAIN MENU' : 'LOGIN TO PLAY'}
+          MAIN MENU
         </button>
       </div>
     </div>
