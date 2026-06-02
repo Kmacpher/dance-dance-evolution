@@ -1,0 +1,12 @@
+# Caddy reverse proxy for Dance Dance Evolution.
+# Caddy terminates TLS (automatic Let's Encrypt certs) on 443 and proxies to the
+# app container over the internal compose network. For certs to issue, the
+# domain's DNS A/AAAA record must point at this host's public IP and ports
+# 80 + 443 must be reachable from the internet (OS firewall + OCI security list).
+#
+# To use a different domain, change the hostname below (and the DNS record).
+
+dde.seanj.xyz {
+	encode zstd gzip
+	reverse_proxy app:3000
+}

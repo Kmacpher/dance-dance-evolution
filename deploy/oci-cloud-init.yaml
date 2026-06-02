@@ -3,13 +3,19 @@
 # Paste this into: Create Instance -> Advanced options -> Management ->
 #   "Cloud-init script" (user_data) field.
 #
-# It installs Docker, opens port 80 at the OS level (OCI images block it by
-# default), clones the repo, builds, runs app + Mongo, and seeds the DB.
+# It installs Docker, opens ports 80 + 443 at the OS level (OCI images block
+# them by default), clones the repo, builds, runs Caddy + app + Mongo, and
+# seeds the DB. Caddy is the public entrypoint and terminates HTTPS for
+# dde.seanj.xyz (see deploy/Caddyfile); the app itself is only on loopback.
 #
 # NOTE 1 (VCN firewall): cloud-init only opens the *OS* firewall. You STILL
-#   must add an ingress rule for TCP 80 (source 0.0.0.0/0) to the subnet's
-#   Security List / NSG in the OCI console — that lives above the VM.
-# NOTE 2 (private repo): if Kmacpher/dance-dance-evolution is private, the
+#   must add ingress rules for TCP 80 and TCP 443 (source 0.0.0.0/0) to the
+#   subnet's Security List / NSG in the OCI console — that lives above the VM.
+# NOTE 2 (DNS / TLS): for Caddy to issue a Let's Encrypt cert, dde.seanj.xyz
+#   must have an A (and/or AAAA) record pointing at this instance's public IP
+#   *before* the stack starts. Until then Caddy keeps retrying; the app is
+#   still reachable on the host at http://localhost:3000/.
+# NOTE 3 (private repo): if Kmacpher/dance-dance-evolution is private, the
 #   anonymous clone below will fail. Either make it public, or change REPO to
 #   https://<GITHUB_PAT>@github.com/Kmacpher/dance-dance-evolution.git
 # Progress/logs: sudo tail -f /var/log/cloud-init-output.log
@@ -48,13 +54,17 @@ write_files:
       fi
       systemctl enable --now docker
 
-      # --- Open port 80 at the OS level (the OCI gotcha) ---
+      # --- Open ports 80 + 443 at the OS level (the OCI gotcha) ---
       if command -v firewall-cmd >/dev/null 2>&1 && systemctl is-active --quiet firewalld; then
         firewall-cmd --permanent --add-port=80/tcp
+        firewall-cmd --permanent --add-port=443/tcp
+        firewall-cmd --permanent --add-port=443/udp
         firewall-cmd --reload
       else
         # Ubuntu on OCI uses iptables; insert above the default REJECT, then persist.
         iptables -I INPUT -p tcp --dport 80 -j ACCEPT
+        iptables -I INPUT -p tcp --dport 443 -j ACCEPT
+        iptables -I INPUT -p udp --dport 443 -j ACCEPT
         if ! command -v netfilter-persistent >/dev/null 2>&1; then
           DEBIAN_FRONTEND=noninteractive apt-get update -y || true
           DEBIAN_FRONTEND=noninteractive apt-get install -y iptables-persistent || true
@@ -68,12 +78,13 @@ write_files:
       fi
       cd "$APP_DIR"
 
-      # --- Build + run (app on :80, Mongo internal) ---
+      # --- Build + run (Caddy on :80/:443, app on loopback :3000, Mongo internal) ---
       docker compose -f docker-compose.prod.yml up -d --build
 
-      # --- Wait for the app, then seed the DB once ---
+      # --- Wait for the app (checked directly on its loopback port, since Caddy
+      #     now owns :80 and only answers for the configured domain) ---
       for _ in $(seq 1 60); do
-        curl -fsS http://localhost/ >/dev/null 2>&1 && break
+        curl -fsS http://localhost:3000/ >/dev/null 2>&1 && break
         sleep 5
       done
       docker compose -f docker-compose.prod.yml exec -T app node server/dist/seed.js || true

@@ -9,7 +9,7 @@
     "dev:client": "vite --config client/vite.config.ts",
     "build": "npm run build:client && npm run build:server",
     "build:client": "vite build --config client/vite.config.ts",
-    "build:server": "tsc -p server/tsconfig.json",
+    "build:server": "tsc -p server/tsconfig.json && echo '{\"type\":\"commonjs\"}' > server/dist/package.json",
     "start": "node server/dist/main.js",
     "seed": "tsx server/src/seed.ts"
   },

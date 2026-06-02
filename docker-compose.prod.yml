@@ -1,7 +1,23 @@
 # Production stack for a single host (e.g. an OCI Always Free VM).
-# Runs the app + MongoDB together; only the app is exposed to the internet.
+# Caddy is the public entrypoint (auto-HTTPS); it proxies to the app, which is
+# only reachable on the host loopback + the internal compose network. Mongo is
+# internal-only.
 #   docker compose -f docker-compose.prod.yml up -d --build
 services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"   # HTTP/3
+    volumes:
+      - ./deploy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data       # issued certs — persist so we don't re-request on restart
+      - caddy_config:/config
+    depends_on:
+      - app
+
   app:
     build: .
     restart: unless-stopped
@@ -9,8 +25,11 @@ services:
       NODE_ENV: production
       PORT: "3000"
       MONGODB_URI: mongodb://mongo:27017/dde
+    # Loopback-only publish: lets the host health-check the app directly while
+    # keeping it off the public internet. Caddy reaches it as "app:3000" over
+    # the compose network regardless of this mapping.
     ports:
-      - "80:3000"
+      - "127.0.0.1:3000:3000"
     depends_on:
       - mongo
 
@@ -25,3 +44,5 @@ services:
 
 volumes:
   mongo_data:
+  caddy_data:
+  caddy_config:
