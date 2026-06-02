@@ -1,6 +1,8 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AudioEngine } from '../game/AudioEngine';
+import { homeAudio } from '../game/homeAudio';
+import Visualizer from '../components/Visualizer';
 import { useKeyConfig, type Direction } from '../hooks/useKeyConfig';
 
 // Each arrow image is rotated to point in its direction.
@@ -29,11 +31,15 @@ export default function Home() {
   const navigate = useNavigate();
   const { getButton } = useKeyConfig();
   const imgRefs = useRef<Partial<Record<Direction, HTMLImageElement>>>({});
+  const [playing, setPlaying] = useState(homeAudio.isPlaying);
 
   const handleStart = () => {
     AudioEngine.playSfx('start');
     navigate('/menu');
   };
+
+  // 'P' starts/stops Sandstorm (and, via homeAudio.isPlaying, the visualizer).
+  const togglePlay = () => setPlaying(homeAudio.toggle());
 
   const setArrow = (dir: Direction, pressed: boolean) => {
     const el = imgRefs.current[dir];
@@ -42,10 +48,18 @@ export default function Home() {
     el.style.filter = pressed ? PRESSED_FILTER : '';
   };
 
+  // Stop the music when leaving the home screen.
+  useEffect(() => () => homeAudio.stop(), []);
+
   // Nudge the arrow images on keypress (and reset on release) to match the
   // legacy home screen. Routed through useKeyConfig so rebinds + WASD work.
+  // 'P' starts/stops the music and visualizer together.
   useEffect(() => {
     const onDown = (e: KeyboardEvent) => {
+      if (e.key.toLowerCase() === 'p') {
+        togglePlay();
+        return;
+      }
       const btn = getButton(e);
       if (!btn) return;
       if (btn.name === 'enter') {
@@ -70,8 +84,11 @@ export default function Home() {
   return (
     <div
       id="home"
-      className="relative h-[100vh] flex flex-col items-center justify-center overflow-hidden"
+      className="relative h-[100vh] flex flex-col items-center justify-top overflow-hidden"
     >
+      {/* Audio-reactive pink wireframe blob, behind the menu content. */}
+      <Visualizer />
+
       <div className="wrap z-10 text-center">
         <h1
           className="text-[#2DDEFF] mt-[3%]"
@@ -79,13 +96,16 @@ export default function Home() {
         >
           Dance Dance Evolution
         </h1>
+      </div>
 
+      {/* Controls column, on the right (vertically centered, not flush to edge). */}
+      <div className="absolute right-[10vw] bottom-[10vw] z-10 flex flex-col items-center gap-3">
         {/* Arrow key display */}
-        <div className="arrow-keys flex justify-center gap-4 mt-[3%] mb-8">
+        <div className="arrow-keys flex justify-center gap-1">
           {(['left', 'up-down', 'right'] as const).map((slot) => {
             if (slot === 'up-down') {
               return (
-                <div key="up-down" className="flex flex-col items-center gap-1">
+                <div key="up-down" className="flex flex-col items-center gap-12">
                   {(['up', 'down'] as Direction[]).map((dir) => (
                     <img
                       key={dir}
@@ -111,19 +131,26 @@ export default function Home() {
             );
           })}
         </div>
-        <p className="text-[#2DDEFF] text-sm mb-6">to move</p>
+        <p className="text-[#2DDEFF] text-sm mb-4">to move</p>
 
-        <div className="flex items-center justify-center gap-3">
+        <div className="flex items-center gap-3">
           <img src="/img/enterKey.png" alt="enter" style={{ height: '60px' }} />
           <span className="text-[#2DDEFF] text-base"> to start</span>
         </div>
 
-        <button
-          onClick={handleStart}
-          className="btn-dde mt-8 block mx-auto"
-        >
-          MAIN MENU
-        </button>
+        {/* Play/pause toggle — keyed to 'p', styled to match the arrow keys.
+            The button's appearance stays constant; only the label changes. */}
+        <div className="flex items-center gap-3 mt-1">
+          <button
+            onClick={togglePlay}
+            aria-pressed={playing}
+            className="flex items-center justify-center w-[50px] h-[50px] rounded-[8px] border text-base"
+            style={{ borderColor: '#2DDEFF', color: '#2DDEFF', background: 'transparent' }}
+          >
+            p
+          </button>
+          <span className="text-[#2DDEFF] text-base">{playing ? 'to pause' : 'to play'}</span>
+        </div>
       </div>
     </div>
   );
