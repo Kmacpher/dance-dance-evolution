@@ -10,7 +10,7 @@
 #
 # NOTE 1 (VCN firewall): cloud-init only opens the *OS* firewall. You STILL
 #   must add ingress rules for TCP 80 and TCP 443 (source 0.0.0.0/0) to the
-#   subnet's Security List / NSG in the OCI console — that lives above the VM.
+#   subnet's Security List / NSG in the OCI console - that lives above the VM.
 # NOTE 2 (DNS / TLS): for Caddy to issue a Let's Encrypt cert, dde.seanj.xyz
 #   must have an A (and/or AAAA) record pointing at this instance's public IP
 #   *before* the stack starts. Until then Caddy keeps retrying; the app is
