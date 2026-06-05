@@ -10,12 +10,14 @@ import {
   TIMING_WINDOWS, ACCURACY_COLORS,
 } from '../game/ScoreEngine';
 import { useKeyConfig } from '../hooks/useKeyConfig';
+import { getCalibrationMs } from '../game/calibration';
 
 const DIRS: Direction[] = ['left', 'down', 'up', 'right'];
 
 interface WorkerMsg {
   hit?: boolean; dir?: Direction; index?: number; freeze?: boolean; diff?: number;
   freezeUp?: boolean; brokeFreeze?: boolean; endSong?: boolean;
+  chartCounts?: Record<Direction, number>;
 }
 
 function ArrowLane({ player, dir }: { player: 1 | 2; dir: Direction }) {
@@ -35,6 +37,12 @@ export default function Game() {
   const { songId, difficulty } = useParams<{ songId: string; difficulty: string }>();
   const [searchParams] = useSearchParams();
   const speedMod = Number(searchParams.get('mod') ?? 1);
+  // Calibration offset (ms) added to each press before judging, to cancel the
+  // perceptual early/late bias from audio/display latency. Comes from the user's
+  // saved calibration (Calibrate screen); `?offset=<ms>` overrides it for testing.
+  const judgmentOffsetMs = searchParams.has('offset')
+    ? Number(searchParams.get('offset'))
+    : getCalibrationMs();
   const navigate = useNavigate();
   const { getButton } = useKeyConfig();
 
@@ -55,6 +63,7 @@ export default function Game() {
   const startTimeRef = useRef(0);
   const songRef = useRef<Song | null>(null);
   const accTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const chartCountsRef = useRef<Record<Direction, number> | null>(null);
 
   const showAcc = useCallback((label: string, color: string) => {
     setAccuracy(label);
@@ -118,12 +127,19 @@ export default function Game() {
           return;
         }
 
+        if (d.chartCounts) {
+          chartCountsRef.current = d.chartCounts;
+          return;
+        }
+
         const arrows = arrowEngineRef.current!;
         const ps = playerRef.current;
 
         if (d.hit && d.dir !== undefined && d.index !== undefined) {
           if (d.freeze) arrows.showFreezeEater(d.dir, d.index);
-          arrows.hideArrowImage(d.dir, d.index);
+          if (!arrows.hideArrowImage(d.dir, d.index)) {
+            console.warn(`[arrows] hit not hidden: dir=${d.dir} index=${d.index} diff=${d.diff?.toFixed(3)}s`);
+          }
           addScore(ps, d.diff!);
           addCombo(ps, d.diff!);
           setScore(ps.score);
@@ -159,6 +175,7 @@ export default function Game() {
         songOffset: Number(song.offset),
         timing: config.TIMING_WINDOW,
         bpms: song.bpms, stops: song.stops,
+        judgmentOffset: (Number.isFinite(judgmentOffsetMs) ? judgmentOffsetMs : 0) / 1000,
       });
 
       setLoading(false);
@@ -166,14 +183,35 @@ export default function Game() {
       setTimeout(async () => {
         if (cancelled) return;
         arrowEngineRef.current!.makeArrows(stepChart.chart, bpm, config, song);
+
+        // The worker's hit indices address arrowEls positionally; if the DOM lane
+        // count differs from the worker's chart count the mapping is off and hits
+        // will hide the wrong arrow. Surface that immediately.
+        const wc = chartCountsRef.current;
+        if (wc) {
+          const ac = arrowEngineRef.current!.counts();
+          for (const dir of DIRS) {
+            if (ac[dir] !== wc[dir]) {
+              console.warn(
+                `[arrows] COUNT MISMATCH "${dir}": worker chart=${wc[dir]} vs DOM arrows=${ac[dir]} — ` +
+                `hit→arrow indices are misaligned; hits past the divergence will hide the wrong arrow`
+              );
+            }
+          }
+        }
+
         await audioRef.current!.waitForLoad();
         if (cancelled) return;
 
-        audioRef.current!.start();
-        arrowEngineRef.current!.resume();
-
-        const startTime = Date.now() - Number(song.offset) * 1000;
+        // One wall-clock origin shared by the judgment worker and the visual
+        // engine so the two never drift relative to each other.
+        const startWall = Date.now();
+        const startTime = startWall - Number(song.offset) * 1000;
         startTimeRef.current = startTime;
+
+        audioRef.current!.start();
+        arrowEngineRef.current!.start(startWall);
+
         worker.postMessage({ type: 'startTime', startTime });
 
         // Background media
@@ -198,7 +236,7 @@ export default function Game() {
 
     load().catch(console.error);
     return () => { cancelled = true; cleanup(); };
-  }, [songId, difficulty, speedMod, navigate, cleanup, showAcc]);
+  }, [songId, difficulty, speedMod, navigate, cleanup, showAcc, judgmentOffsetMs]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {

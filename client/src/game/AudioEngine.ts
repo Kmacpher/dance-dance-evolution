@@ -48,21 +48,34 @@ export class AudioEngine {
   }
 
   start(): void {
-    // Compensate for audio output latency — the delay between when Web Audio
-    // *schedules* a buffer and when that sound actually reaches the speakers.
-    // The arrows are driven by GSAP/rAF (latency-free), so without this the
-    // arrows reach the receptor ~tens of ms before the sound is heard and feel
-    // early. The latency is read from the live AudioContext so it self-adjusts
-    // to the user's hardware/OS (a few ms on good setups, 100ms+ on some Linux
-    // audio stacks / Bluetooth) — it is a constant time shift, not BPM-related.
-    // Tone schedules the '+x' string relative to context.now(), which includes
-    // the context lookAhead (default 0.1s). The arrows run on GSAP/rAF (wall
-    // clock, no lookAhead), so unlike a pure-Tone app the lookAhead does NOT
-    // cancel — it would push the audio ~lookAhead late vs the arrows. Subtract
-    // it so audio and arrows share the same zero. Safe: syncOffset (ARROW_TIME +
-    // offset) is hundreds of ms, so this never schedules in the past.
-    const startIn = Math.max(0, this.syncOffset - this.outputLatency() - Tone.getContext().lookAhead);
+    // We do NOT compensate for AudioContext.outputLatency. It sounds principled
+    // (shift the audio earlier so the *sound* lands with the arrows) but the
+    // reported value is unreliable — on Firefox/Linux it reads 35-50ms and wobbles
+    // run-to-run while the true hardware latency is ~0, so subtracting it injected
+    // a measured ~35ms "press early" bias and dropped in-window hits. Any genuine
+    // perceptual offset (real output latency, display lag, personal anticipation)
+    // is handled end-to-end by the per-user calibration offset instead — see
+    // calibration.ts and the Calibrate screen.
+    //
+    // We DO still subtract lookAhead: Tone schedules the '+x' string relative to
+    // context.now() (= currentTime + lookAhead, default 0.1s), but the arrows run
+    // on GSAP/rAF (wall clock, no lookAhead), so without this the audio would land
+    // ~lookAhead late vs the arrows. Safe: syncOffset is hundreds of ms, so this
+    // never schedules in the past. (outputLatency is still computed for the
+    // [audio] debug log, just not applied.)
+    const outputLatency = this.outputLatency();
+    const lookAhead = Tone.getContext().lookAhead;
+    const startIn = Math.max(0, this.syncOffset - lookAhead);
+    this.lastTiming = { outputLatency, lookAhead, syncOffset: this.syncOffset, startIn };
     this.player?.start(`+${startIn}`);
+  }
+
+  // Snapshot of the latency compensation used by the last start(), for debug.
+  // Compare (outputLatency + lookAhead) against the measured HIT-OFFSET: if they
+  // track, the early bias is the audio compensation; if not, it's elsewhere.
+  private lastTiming = { outputLatency: 0, lookAhead: 0, syncOffset: 0, startIn: 0 };
+  timingDebug(): typeof this.lastTiming {
+    return this.lastTiming;
   }
 
   /** Best runtime estimate of output latency in seconds (schedule → speaker). */

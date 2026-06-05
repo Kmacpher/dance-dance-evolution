@@ -6,8 +6,9 @@ import { useKeyConfig } from '../hooks/useKeyConfig';
 const MENU_ITEMS = [
   { id: 'option1', label: 'Game Start', path: '/choose-song' },
   { id: 'option2', label: 'Set Keybindings', path: '/keybinding' },
-  { id: 'option3', label: 'Upload Song', path: '/upload' },
-  { id: 'option4', label: 'Exit', path: '/' },
+  { id: 'option3', label: 'Calibrate Audio', path: '/calibrate' },
+  { id: 'option4', label: 'Upload Song', path: '/upload' },
+  { id: 'option5', label: 'Exit', path: '/' },
 ];
 
 export default function MainMenu() {

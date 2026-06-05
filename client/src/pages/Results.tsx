@@ -121,13 +121,17 @@ export default function Results() {
               placeholder="Enter your name"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') handleSubmitScore();
+              }}
+              autoFocus
               maxLength={20}
               className="form-input"
-              style={{ marginBottom: '16px', width: '100%', textAlign: 'center', fontSize: '18px' }}
+              style={{ marginBottom: '16px', width: '100%', textAlign: 'center', fontSize: '18px', color: '#f0f0f0' }}
             />
-            <button onClick={handleSubmitScore} className="btn-dde-pink" style={{ width: '100%' }}>
-              SUBMIT
-            </button>
+            <p style={{ fontFamily: 'petit', fontSize: '2.4vh', color: '#9aa0a6', margin: 0 }}>
+              Press Enter to submit
+            </p>
           </div>
         </div>
       )}

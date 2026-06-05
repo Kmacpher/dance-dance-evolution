@@ -1,5 +1,6 @@
 import gsap from 'gsap';
 import { Song, GameConfig } from '../types';
+import { getStopTime, getBPMTime, Bpm, Stop } from './tempo';
 
 export type Direction = 'left' | 'down' | 'up' | 'right';
 
@@ -28,6 +29,17 @@ export class ArrowEngine {
   };
 
   readonly SPEED_1X = 100;
+
+  // Tempo map for driving the timeline playhead from the shared song clock (so
+  // the visuals can't drift from the worker's judgment across BPM changes/stops).
+  private bpms: Bpm[] = [];
+  private stops: Stop[] = [];
+  private bpm0 = 120;
+  private arrowTime = 0;     // seconds of lead-in before an arrow reaches the receptor
+  private leadBeats = 0;     // arrowTime expressed in beats at bpm0
+  private maxBeat = 0;       // upper bound for the beat search
+  private startWall = 0;     // Date.now() at playback start
+  private rafId = 0;
 
   constructor(private player: 1 | 2) {
     this.tl = gsap.timeline({ paused: true });
@@ -73,7 +85,16 @@ export class ArrowEngine {
             const isFreeze = maybeArrow === '2';
 
             const container = this.getContainer(dir);
-            if (!container) return;
+            if (!container) {
+              // The worker still counts this note, so skipping the DOM push here
+              // makes arrowEls[dir] shorter than the worker's list — every later
+              // hit index then points at the wrong arrow.
+              console.warn(
+                `[arrows] makeArrows: no DOM container for "${dir}" (measure ${mIdx}) — ` +
+                `arrow indices will drift and hits will hide the wrong arrow`
+              );
+              return;
+            }
 
             const wrapper = document.createElement('div');
             wrapper.className = 'arrow activeArrow';
@@ -119,47 +140,134 @@ export class ArrowEngine {
       });
     });
 
-    // BPM changes
-    song.bpms.forEach((bpmEntry) => {
-      if (bpmEntry.beat === 0) return;
-      const ts = config.ARROW_TIME + config.BEAT_TIME * bpmEntry.beat;
-      const scale = bpmEntry.bpm / song.bpms[0].bpm;
-      this.tl.add(() => { this.tl.timeScale(scale); }, ts);
-    });
-
-    // Stops
-    song.stops.forEach((stop) => {
-      const ts = config.ARROW_TIME + config.BEAT_TIME * stop.beat;
-      this.tl.addPause(ts, () => { setTimeout(() => this.tl.play(), stop.duration * 1000); });
-    });
+    // Tempo map for the playhead driver. We do NOT use tl.timeScale()/addPause()
+    // here (the legacy approach): a free-running GSAP timeline accumulates its own
+    // time and drifts from the worker's judgment — especially where a BPM change
+    // and a stop land on the same beat. Instead start() scrubs tl.time() from the
+    // shared song clock through this same map (see [[tempo.ts]]).
+    this.bpms = song.bpms;
+    this.stops = song.stops;
+    this.bpm0 = bpm;
+    this.arrowTime = config.ARROW_TIME;
+    this.leadBeats = (config.ARROW_TIME * bpm) / 60;
+    this.maxBeat = stepChart.length * 4 + 16;
 
     return this.arrowEls;
   }
 
-  resume(): void {
-    this.tl.resume();
+  /** Real elapsed seconds → the receptor-arrival time for that beat. Strictly
+   *  increasing in beat (rate = 60/bpm) with an upward jump of `duration` at each
+   *  stop; matches the worker's arrow.time (minus songOffset) exactly. */
+  private receptorTime(beat: number): number {
+    return beat * (60 / this.bpm0) + this.arrowTime
+      + getBPMTime(beat, this.bpms) + getStopTime(beat, this.stops);
+  }
+
+  /** Current song beat at elapsed `e` — inverse of receptorTime, found by
+   *  bisection. During a stop the result holds at the stop's beat (the plateau),
+   *  which makes the arrows freeze, exactly like a real stop. */
+  private beatAtElapsed(e: number): number {
+    let lo = -this.leadBeats;            // receptorTime(lo) === 0
+    let hi = this.maxBeat;
+    if (e <= 0) return lo;
+    if (this.receptorTime(hi) <= e) return hi;
+    for (let i = 0; i < 48; i++) {
+      const mid = (lo + hi) / 2;
+      if (this.receptorTime(mid) <= e) lo = mid; else hi = mid;
+    }
+    return lo;
+  }
+
+  /** Timeline-local position whose arrows sit on the receptor at elapsed `e`. */
+  private timelinePos(e: number): number {
+    return this.beatAtElapsed(e) * (60 / this.bpm0) + this.arrowTime;
+  }
+
+  /** Begin driving the timeline from the song clock. `startWall` (Date.now()) must
+   *  match the worker's start reference so visuals and judgment share one clock. */
+  start(startWall: number): void {
+    this.startWall = startWall;
+    const tick = () => {
+      const e = (Date.now() - this.startWall) / 1000;
+      this.tl.time(Math.max(0, this.timelinePos(e)));
+      this.rafId = requestAnimationFrame(tick);
+    };
+    this.rafId = requestAnimationFrame(tick);
   }
 
   kill(): void {
+    if (this.rafId) cancelAnimationFrame(this.rafId);
+    this.rafId = 0;
     this.tl.pause(0, true);
     this.tl.kill();
   }
 
-  removeArrow(dir: Direction, index: number): void {
-    const arrow = this.arrowEls[dir][index];
-    if (arrow) arrow.el.innerHTML = '';
+  /** Per-direction arrow counts — compared against the worker's chart to catch
+   *  index-space divergence (the cause of "arrows stop disappearing mid-song"). */
+  counts(): Record<Direction, number> {
+    return {
+      left: this.arrowEls.left.length,
+      down: this.arrowEls.down.length,
+      up: this.arrowEls.up.length,
+      right: this.arrowEls.right.length,
+    };
   }
 
-  hideArrowImage(dir: Direction, index: number): void {
+  removeArrow(dir: Direction, index: number): void {
     const arrow = this.arrowEls[dir][index];
-    if (!arrow) return;
-    const img = arrow.el.querySelector('img') as HTMLElement | null;
-    if (img) img.hidden = true;
+    if (!arrow) {
+      console.warn(`[arrows] removeArrow MISS: no arrow at ${dir}[${index}] (lane has ${this.arrowEls[dir].length})`);
+      return;
+    }
+    arrow.el.innerHTML = '';
+  }
+
+  /** Hide a hit arrow's image. Returns false if it could not (the symptom the
+   *  user reported: arrow stays visible after being hit). */
+  hideArrowImage(dir: Direction, index: number): boolean {
+    const arrow = this.arrowEls[dir][index];
+    if (!arrow) {
+      console.warn(`[arrows] hide FAILED: no arrow at ${dir}[${index}] (lane has ${this.arrowEls[dir].length}) — index drift?`);
+      return false;
+    }
+    const img = arrow.el.querySelector('img') as HTMLImageElement | null;
+    if (!img) {
+      console.warn(`[arrows] hide FAILED: no <img> at ${dir}[${index}] (already removed/freeze-released?)`);
+      return false;
+    }
+    if (img.hidden) {
+      console.warn(`[arrows] hide SUSPECT: ${dir}[${index}] <img> was already hidden — double-hit or wrong index (drift)`);
+    }
+
+    // The worker registered a hit (score went up) and we found the arrow at this
+    // index — but is it the arrow the player actually sees on the receptor? A
+    // correctly-timed hit hides an arrow sitting ON the receptor. If the hidden
+    // arrow is far from it, the GSAP visual timeline has drifted from the worker's
+    // judgment clock (e.g. after a BPM change/stop): the worker counts the hit and
+    // hides arrow[index], but that's NOT the arrow under the receptor, so the one
+    // the player sees never disappears. That's the "score logs but arrow stays".
+    const target = this.getContainer(dir)?.querySelector(`.arrowP${this.player}`);
+    if (target) {
+      const dyVh = ((arrow.el.getBoundingClientRect().top - target.getBoundingClientRect().top)
+        / window.innerHeight) * 100;
+      if (Math.abs(dyVh) > 12) {
+        console.warn(
+          `[arrows] DESYNC: hiding ${dir}[${index}] but it is ${dyVh.toFixed(0)}vh from the receptor ` +
+          `— visual timeline has drifted from judgment (BPM change / stop?); the on-screen arrow won't vanish`
+        );
+      }
+    }
+
+    img.hidden = true;
+    return true;
   }
 
   showFreezeEater(dir: Direction, index: number): void {
     const arrow = this.arrowEls[dir][index];
-    if (!arrow) return;
+    if (!arrow) {
+      console.warn(`[arrows] showFreezeEater MISS: no arrow at ${dir}[${index}] (lane has ${this.arrowEls[dir].length})`);
+      return;
+    }
     const freeze = arrow.el.querySelector('.freeze') as HTMLElement | null;
     if (freeze) freeze.style.transform = 'translateY(7.5vh)';
     // highlight fader

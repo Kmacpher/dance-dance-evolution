@@ -1,6 +1,6 @@
 # DDE Port — Progress & TODO
 
-Branch: `feature/update-dde-app` (off `master`). Last updated: 2026-05-31.
+Branch: `feature/update-dde-app` (off `master`). Last updated: 2026-06-04.
 
 Porting the original Angular 1.5 DDR game to **React 18 + TypeScript + Vite** (`client/`)
 with a new **Express + TypeScript** server (`server/src/`). The legacy app is preserved,
@@ -63,6 +63,43 @@ real browser.
   `AudioEngine.playSfx(name)`.
 - Legacy `chooseSong` also drew a **groove radar** chart (d3 `radar-chart.js`) per
   difficulty. Not yet in the React port. Optional.
+
+## Timing accuracy overhaul + audio calibration — DONE (2026-06-04)
+
+Verified by hand in a real browser (Chromium): a song with BPM changes/stops plays
+with arrows and judgment locked together, and calibration removes the early-press bias.
+`tsc --noEmit` passes clean.
+
+1. **Visual↔judgment desync fix** (the "arrow stays visible after a hit / arrows stop
+   disappearing mid-song" bug). Root cause: the GSAP arrow timeline ran free
+   (`tl.timeScale()` + `addPause()`) and accumulated its own time, drifting from the
+   worker's judgment clock — worst where a BPM change and a stop share a beat. Fix:
+   - New shared `client/src/game/tempo.ts` (`getStopTime`/`getBPMTime`), imported by
+     **both** `gameWorker.ts` and `ArrowEngine.ts` so they share one notion of song time.
+   - `ArrowEngine` no longer free-runs. `start(startWall)` scrubs `tl.time()` from the
+     same wall clock the worker uses, via a tempo map (`receptorTime` and its bisection
+     inverse `beatAtElapsed`). Stops show up as a plateau in the inverse (arrows freeze).
+   - `Game.tsx` shares one `startWall = Date.now()` between `audio.start()`,
+     `arrowEngine.start(startWall)`, and the worker `startTime` message.
+   - Guardrails (always on): worker posts `chartCounts`; `Game.tsx` compares them to
+     `ArrowEngine.counts()` and warns on mismatch; `hideArrowImage` returns `false` and
+     warns if the hit arrow isn't near the receptor (drift detector).
+
+2. **Per-user audio calibration** (the "I hit it but it didn't count / I always miss
+   early" bug). Two parts:
+   - Removed the `AudioContext.outputLatency` compensation in `AudioEngine.start()` — the
+     reported value is unreliable (35–50ms and wobbling on Firefox/Linux while true HW
+     latency ≈0), which injected a measured early bias. Still subtract `lookAhead`.
+   - New `client/src/game/calibration.ts` (localStorage offset) + `Calibrate.tsx`
+     tap-to-the-beat metronome screen (routed in `App.tsx`, linked from `MainMenu`). The
+     measured median offset is applied in the worker as `JUDGMENT_OFFSET` (added to each
+     press before judging). `Game.tsx` reads it via `getCalibrationMs()`; `?offset=<ms>`
+     overrides for testing. Sign: **positive = player presses early**.
+
+3. **Debug instrumentation** (separate commit, gated behind `?debug=1`): worker logs
+   per-hit/miss offsets + a HIT-OFFSET/SUMMARY readout; `Game.tsx` logs frame jank /
+   longtask / LoAF and keydown handler lag; `` ` `` jumps to Results. Left in on purpose —
+   cheap and exactly what's wanted the next time timing drifts.
 
 ## Other known TODO / gaps
 

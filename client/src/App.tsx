@@ -8,6 +8,7 @@ import Upload from './pages/Upload';
 import HighScores from './pages/HighScores';
 import SongHighScores from './pages/SongHighScores';
 import Keybinding from './pages/Keybinding';
+import Calibrate from './pages/Calibrate';
 
 export default function App() {
   return (
@@ -23,6 +24,7 @@ export default function App() {
           <Route path="/highscores" element={<HighScores />} />
           <Route path="/highscores/:songId" element={<SongHighScores />} />
           <Route path="/keybinding" element={<Keybinding />} />
+          <Route path="/calibrate" element={<Calibrate />} />
         </Routes>
       </main>
     </BrowserRouter>

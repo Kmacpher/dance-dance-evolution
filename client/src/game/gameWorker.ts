@@ -1,6 +1,8 @@
 // Web Worker — runs timing logic off the main thread
 // Ported faithfully from animationWorker.js
 
+import { getStopTime, getBPMTime } from './tempo';
+
 type Direction = 'left' | 'down' | 'up' | 'right';
 
 const indexToDir: Record<string, Direction> = {
@@ -40,26 +42,16 @@ const inFreeze: Record<Direction, { freeze: boolean; fromArrow: number | null }>
 };
 
 let TIMING_WINDOW = 0.1;
-const timeouts: ((last?: boolean) => void)[] = [];
+// Calibration: seconds added to each press timestamp before judging it. Players
+// perceive the cue (audio at the speaker / arrow at the receptor) ahead of the
+// worker's raw wall clock, so without this they press systematically early and
+// only ever miss early. Comes from the Calibrate screen; 0 = off.
+let JUDGMENT_OFFSET = 0;
+const timeouts: (() => void)[] = [];
+// Latest moment (ms after start) any arrow is checked — used to fire endSong.
+let lastFireMs = 0;
 
-function getStopTime(thisBeat: number, stops: { beat: number; duration: number }[]): number {
-  return stops.reduce((t, s) => (thisBeat > s.beat ? t + s.duration : t), 0);
-}
-
-function getBPMTime(thisBeat: number, bpms: { beat: number; bpm: number }[]): number {
-  let addedTime = 0;
-  for (let i = 1; i < bpms.length && thisBeat > bpms[i].beat; i++) {
-    const oldBeat = 60 / bpms[i - 1].bpm;
-    const newBeat = 60 / bpms[i].bpm;
-    addedTime += (thisBeat - bpms[i].beat) * (newBeat - oldBeat);
-  }
-  return addedTime;
-}
-
-function checkArrow(arrowTime: ArrowTime, last?: boolean) {
-  if (last) {
-    postMessage({ endSong: true });
-  }
+function checkArrow(arrowTime: ArrowTime) {
   if (!arrowTime.hit && !arrowTime.freezeUp) {
     postMessage({ hit: false, index: arrowTime.index, dir: arrowTime.dir });
   } else if (arrowTime.animate) {
@@ -76,9 +68,11 @@ function preChart(
   songOffset: number,
   timing: number,
   bpms: { beat: number; bpm: number }[],
-  stops: { beat: number; duration: number }[]
+  stops: { beat: number; duration: number }[],
+  judgmentOffset = 0
 ) {
   TIMING_WINDOW = timing;
+  JUDGMENT_OFFSET = judgmentOffset;
   const measureTime = 1 / (bpm / 60 / 4);
 
   stepChart.forEach((measure, mIdx) => {
@@ -111,8 +105,10 @@ function preChart(
 
           if (maybeArrow === '2') inFreeze[dir].fromArrow = idx;
 
-          timeouts.push((last?: boolean) => {
-            setTimeout(() => checkArrow(arrowTime, last), (timeStamp + TIMING_WINDOW - songOffset) * 1000);
+          const fireMs = (timeStamp + TIMING_WINDOW - songOffset) * 1000;
+          if (fireMs > lastFireMs) lastFireMs = fireMs;
+          timeouts.push(() => {
+            setTimeout(() => checkArrow(arrowTime), fireMs);
           });
         } else if (maybeArrow === '3') {
           const freezeUpArrow: ArrowTime = {
@@ -125,24 +121,40 @@ function preChart(
             index: inFreeze[dir].fromArrow ?? 0,
           };
 
-          timeouts.push((_last?: boolean) => {
+          timeouts.push(() => {
             setTimeout(() => checkArrow(freezeUpArrow), (timeStamp - TIMING_WINDOW - songOffset) * 1000);
           });
-          timeouts.push((_last?: boolean) => {
+          const animateMs = (timeStamp + TIMING_WINDOW - songOffset) * 1000;
+          if (animateMs > lastFireMs) lastFireMs = animateMs;
+          timeouts.push(() => {
             setTimeout(() => {
               freezeUpArrow.animate = true;
               checkArrow(freezeUpArrow);
-            }, (timeStamp + TIMING_WINDOW - songOffset) * 1000);
+            }, animateMs);
           });
         }
       });
     });
+  });
+
+  // Report how many tappable arrows landed in each lane so the main thread can
+  // check it matches the DOM arrows — a mismatch means hit indices are misaligned
+  // and hits will hide the wrong arrow (arrows "stop disappearing" mid-song).
+  postMessage({
+    chartCounts: {
+      left: chart.left.list.length,
+      down: chart.down.list.length,
+      up: chart.up.list.length,
+      right: chart.right.list.length,
+    },
   });
 }
 
 function respondToKey(time: number, dir: Direction) {
   const thisChart = chart[dir];
   if (!thisChart) return;
+  // Re-center the press onto the player's perceived timing before judging.
+  time += JUDGMENT_OFFSET;
   if (thisChart.pointer >= thisChart.list.length) return;
 
   let nextOne = thisChart.list[thisChart.pointer];
@@ -180,13 +192,16 @@ self.onmessage = (e: MessageEvent) => {
       e.data.songOffset,
       e.data.timing,
       e.data.bpms,
-      e.data.stops
+      e.data.stops,
+      e.data.judgmentOffset
     );
   } else if (type === 'startTime') {
-    if (timeouts.length > 0) {
-      timeouts[timeouts.length - 1]((true));
-      timeouts.slice(0, -1).forEach((fn) => fn());
-    }
+    timeouts.forEach((fn) => fn());
+    // Fire endSong just after the last arrow has been checked, regardless of
+    // whether that last note is a tap or a freeze release.
+    setTimeout(() => {
+      postMessage({ endSong: true });
+    }, lastFireMs + 100);
   } else if (type === 'keyDown') {
     respondToKey(e.data.timeStamp, e.data.dir as Direction);
   } else if (type === 'keyUp') {
