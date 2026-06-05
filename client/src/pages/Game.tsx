@@ -37,6 +37,7 @@ export default function Game() {
   const { songId, difficulty } = useParams<{ songId: string; difficulty: string }>();
   const [searchParams] = useSearchParams();
   const speedMod = Number(searchParams.get('mod') ?? 1);
+  const debug = searchParams.get('debug') === '1';
   // Calibration offset (ms) added to each press before judging, to cancel the
   // perceptual early/late bias from audio/display latency. Comes from the user's
   // saved calibration (Calibrate screen); `?offset=<ms>` overrides it for testing.
@@ -63,6 +64,7 @@ export default function Game() {
   const startTimeRef = useRef(0);
   const songRef = useRef<Song | null>(null);
   const accTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const jankRef = useRef({ frames: 0, jankFrames: 0, worstFrame: 0, longTasks: 0, worstTask: 0 });
   const chartCountsRef = useRef<Record<Direction, number> | null>(null);
 
   const showAcc = useCallback((label: string, color: string) => {
@@ -175,6 +177,7 @@ export default function Game() {
         songOffset: Number(song.offset),
         timing: config.TIMING_WINDOW,
         bpms: song.bpms, stops: song.stops,
+        debug,
         judgmentOffset: (Number.isFinite(judgmentOffsetMs) ? judgmentOffsetMs : 0) / 1000,
       });
 
@@ -212,6 +215,16 @@ export default function Game() {
         audioRef.current!.start();
         arrowEngineRef.current!.start(startWall);
 
+        if (debug) {
+          const t = audioRef.current!.timingDebug();
+          console.log(
+            `[audio] outputLatency=${(t.outputLatency * 1000).toFixed(1)}ms` +
+            ` lookAhead=${(t.lookAhead * 1000).toFixed(1)}ms` +
+            ` => audio scheduled ${((t.outputLatency + t.lookAhead) * 1000).toFixed(1)}ms early` +
+            ` (compare to HIT-OFFSET; syncOffset=${(t.syncOffset * 1000).toFixed(0)}ms startIn=${(t.startIn * 1000).toFixed(0)}ms)`
+          );
+        }
+
         worker.postMessage({ type: 'startTime', startTime });
 
         // Background media
@@ -236,17 +249,37 @@ export default function Game() {
 
     load().catch(console.error);
     return () => { cancelled = true; cleanup(); };
-  }, [songId, difficulty, speedMod, navigate, cleanup, showAcc, judgmentOffsetMs]);
+  }, [songId, difficulty, speedMod, navigate, cleanup, showAcc, debug, judgmentOffsetMs]);
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
+      // DEBUG: jump straight to the Results screen with the current score
+      if (e.key === '`') {
+        const fs = finalScore(playerRef.current);
+        const pct = getPercent(playerRef.current);
+        cleanup();
+        navigate(`/results/${songId}`, {
+          state: { player: { ...playerRef.current, realScore: fs, percent: pct } },
+        });
+        return;
+      }
       const button = getButton(e);
       if (!button) return;
       if (button.name === 'escape') { cleanup(); navigate('/choose-song'); return; }
       if (button.name === 'enter' || button.player !== 0) return;
       const dir = button.name as Direction;
+      // How long this handler waited between the key event being queued and us
+      // actually running. `e.timeStamp` shares the performance.now() time origin
+      // in modern browsers; a large value means main-thread jank delayed input,
+      // which pushes the captured timestamp late and can drop an in-window hit.
+      const lagMs = Number.isFinite(e.timeStamp)
+        ? Math.max(0, Math.min(10000, performance.now() - e.timeStamp))
+        : 0;
+      if (debug && lagMs > 16) {
+        console.log(`[main] keydown ${dir} handler lag=${lagMs.toFixed(0)}ms`);
+      }
       workerRef.current?.postMessage({
-        type: 'keyDown', dir, timeStamp: (Date.now() - startTimeRef.current) / 1000,
+        type: 'keyDown', dir, timeStamp: (Date.now() - startTimeRef.current) / 1000, lagMs,
       });
       document.querySelectorAll(`.player-1 .${dir}-arrow-col .arrowPlace`).forEach((el) =>
         el.classList.add('arrowPlacePressed')
@@ -267,7 +300,72 @@ export default function Game() {
       window.removeEventListener('keydown', onKeyDown);
       window.removeEventListener('keyup', onKeyUp);
     };
-  }, [getButton, cleanup, navigate]);
+  }, [getButton, cleanup, navigate, songId, debug]);
+
+  // DEBUG: frame-paint / main-thread timing. A janky main thread is what delays
+  // the keydown handler (see `lagMs` above) and silently drops in-window hits.
+  // This measures it in the *real* browser, no CPU throttling needed.
+  useEffect(() => {
+    if (!debug) return;
+    const stats = jankRef.current;
+    const JANK_MS = 50; // > ~3 frames at 60fps: a visibly dropped frame
+    let raf = 0;
+    let last = performance.now();
+    const tick = (now: number) => {
+      const dt = now - last;
+      last = now;
+      stats.frames++;
+      if (dt > JANK_MS) {
+        stats.jankFrames++;
+        if (dt > stats.worstFrame) stats.worstFrame = dt;
+        console.log(`[frame] long frame ${dt.toFixed(0)}ms (input arriving in this frame is delayed by up to that much)`);
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+
+    // Tasks that block the main thread for >50ms — these are what queue input.
+    let longTaskObs: PerformanceObserver | undefined;
+    try {
+      longTaskObs = new PerformanceObserver((list) => {
+        for (const e of list.getEntries()) {
+          stats.longTasks++;
+          if (e.duration > stats.worstTask) stats.worstTask = e.duration;
+          console.log(`[longtask] ${e.duration.toFixed(0)}ms blocking the main thread`);
+        }
+      });
+      longTaskObs.observe({ type: 'longtask', buffered: true });
+    } catch { /* longtask entry type unsupported */ }
+
+    // Long Animation Frames (Chrome 123+): richer than longtask — reports how
+    // much of the frame actually blocked input, with script attribution.
+    let loafObs: PerformanceObserver | undefined;
+    try {
+      loafObs = new PerformanceObserver((list) => {
+        for (const e of list.getEntries() as (PerformanceEntry & { blockingDuration?: number })[]) {
+          const blocking = e.blockingDuration ?? 0;
+          if (blocking > 0) {
+            console.log(`[LoAF] frame ${e.duration.toFixed(0)}ms, blocked input for ${blocking.toFixed(0)}ms`);
+          }
+        }
+      });
+      loafObs.observe({ type: 'long-animation-frame', buffered: true } as PerformanceObserverInit);
+    } catch { /* long-animation-frame unsupported */ }
+
+    return () => {
+      cancelAnimationFrame(raf);
+      longTaskObs?.disconnect();
+      loafObs?.disconnect();
+      // StrictMode mounts/unmounts effects twice in dev; skip the throwaway pass.
+      if (stats.frames === 0) return;
+      const avgFps = 1000 / (performance.now() / stats.frames);
+      console.log(
+        `[frame] SUMMARY frames=${stats.frames} jank(>${JANK_MS}ms)=${stats.jankFrames}` +
+        ` worstFrame=${stats.worstFrame.toFixed(0)}ms longTasks=${stats.longTasks}` +
+        ` worstTask=${stats.worstTask.toFixed(0)}ms ~avgFps=${avgFps.toFixed(0)}`
+      );
+    };
+  }, [debug]);
 
   if (loading) {
     return (

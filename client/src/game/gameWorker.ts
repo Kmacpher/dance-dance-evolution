@@ -45,14 +45,31 @@ let TIMING_WINDOW = 0.1;
 // Calibration: seconds added to each press timestamp before judging it. Players
 // perceive the cue (audio at the speaker / arrow at the receptor) ahead of the
 // worker's raw wall clock, so without this they press systematically early and
-// only ever miss early. Comes from the Calibrate screen; 0 = off.
+// only ever miss early. Set via the `offset` query param (ms); 0 = off.
 let JUDGMENT_OFFSET = 0;
 const timeouts: (() => void)[] = [];
 // Latest moment (ms after start) any arrow is checked — used to fire endSong.
 let lastFireMs = 0;
 
+// --- Debug instrumentation (enabled via ?debug=1) ---------------------------
+let DEBUG = false;
+let dbgPresses = 0;   // total keyDown messages processed
+let dbgHits = 0;      // presses that registered a hit
+let dbgNoHit = 0;     // presses with a candidate arrow but outside the window
+let dbgMissTimeouts = 0; // arrows that expired unhit
+let dbgHitOffSum = 0; // sum of signed hit offsets (press - arrow.time), seconds
+const dbgHitOffs: number[] = []; // signed hit offsets, for mean/median
+let dbgEarlyMiss = 0; // genuine early presses (skipped=0: candidate not yet due)
+let dbgCascadeMiss = 0; // no-hits after a prior missed note (skipped>0 cascade)
+
 function checkArrow(arrowTime: ArrowTime) {
   if (!arrowTime.hit && !arrowTime.freezeUp) {
+    if (DEBUG) {
+      dbgMissTimeouts++;
+      console.log(
+        `[worker] MISS-timeout ${arrowTime.dir} idx=${arrowTime.index} arrow.time=${arrowTime.time.toFixed(3)}s`
+      );
+    }
     postMessage({ hit: false, index: arrowTime.index, dir: arrowTime.dir });
   } else if (arrowTime.animate) {
     postMessage({ freezeUp: true, dir: arrowTime.dir, index: arrowTime.index });
@@ -69,9 +86,11 @@ function preChart(
   timing: number,
   bpms: { beat: number; bpm: number }[],
   stops: { beat: number; duration: number }[],
+  debug = false,
   judgmentOffset = 0
 ) {
   TIMING_WINDOW = timing;
+  DEBUG = debug;
   JUDGMENT_OFFSET = judgmentOffset;
   const measureTime = 1 / (bpm / 60 / 4);
 
@@ -150,27 +169,76 @@ function preChart(
   });
 }
 
-function respondToKey(time: number, dir: Direction) {
+function respondToKey(time: number, dir: Direction, lagMs = 0) {
   const thisChart = chart[dir];
   if (!thisChart) return;
+  if (DEBUG) dbgPresses++;
   // Re-center the press onto the player's perceived timing before judging.
   time += JUDGMENT_OFFSET;
-  if (thisChart.pointer >= thisChart.list.length) return;
-
-  let nextOne = thisChart.list[thisChart.pointer];
-  while (nextOne && nextOne.time < time - TIMING_WINDOW) {
-    thisChart.pointer++;
-    nextOne = thisChart.list[thisChart.pointer];
+  if (thisChart.pointer >= thisChart.list.length) {
+    if (DEBUG) {
+      console.log(`[worker] press ${dir} @${time.toFixed(3)}s — no arrows left in this lane`);
+    }
+    return;
   }
 
-  if (!nextOne) return;
+  // What the press time would have been without input-handler lag.
+  const correctedTime = time - lagMs / 1000;
+  // Closest any arrow (incl. ones the stale-loop skips) comes to that corrected
+  // time — lets us detect hits lost purely because lag arrived > one window late.
+  let bestCorrected = Infinity;
+
+  let nextOne = thisChart.list[thisChart.pointer];
+  let skipped = 0;
+  while (nextOne && nextOne.time < time - TIMING_WINDOW) {
+    if (DEBUG) bestCorrected = Math.min(bestCorrected, Math.abs(nextOne.time - correctedTime));
+    thisChart.pointer++;
+    nextOne = thisChart.list[thisChart.pointer];
+    skipped++;
+  }
+
+  if (!nextOne) {
+    if (DEBUG) {
+      console.log(`[worker] press ${dir} @${time.toFixed(3)}s — skipped ${skipped} stale arrow(s), none left`);
+    }
+    return;
+  }
 
   const diff = Math.abs(nextOne.time - time);
   if (diff < TIMING_WINDOW) {
     nextOne.hit = true;
+    if (DEBUG) {
+      dbgHits++;
+      const signed = time - nextOne.time; // <0 = pressed early, >0 = pressed late
+      dbgHitOffSum += signed;
+      dbgHitOffs.push(signed);
+      console.log(
+        `[worker] HIT  ${dir} idx=${thisChart.pointer} off=${signed >= 0 ? '+' : ''}${(signed * 1000).toFixed(0)}ms` +
+        ` skipped=${skipped} lag=${lagMs.toFixed(0)}ms`
+      );
+    }
     postMessage({ dir, index: thisChart.pointer, hit: true, freeze: nextOne.freeze, diff });
     if (nextOne.freeze) inFreeze[dir].freeze = true;
     thisChart.pointer++;
+  } else if (DEBUG) {
+    // Pressed, but the nearest unhit arrow is outside the timing window: this is
+    // the "I hit it but it didn't count" case. Compare against the corrected
+    // (lag-removed) time, including any arrow the stale-loop already skipped —
+    // when lag > one window the intended arrow is skipped before we get here.
+    dbgNoHit++;
+    const signed = time - nextOne.time; // <0 = pressed early, >0 = pressed late
+    // skipped=0 ⇒ candidate is the genuine next arrow and (given no-hit) the
+    // press is before it: a real early press. skipped>0 ⇒ a prior note was
+    // missed and this press cascaded onto a future arrow — not a timing read.
+    if (skipped === 0) dbgEarlyMiss++; else dbgCascadeMiss++;
+    bestCorrected = Math.min(bestCorrected, Math.abs(nextOne.time - correctedTime));
+    const verdict = bestCorrected < TIMING_WINDOW ? '  <-- WOULD HIT without input lag' : '';
+    console.log(
+      `[worker] no-hit ${dir} idx=${thisChart.pointer} off=${signed >= 0 ? '+' : ''}${(signed * 1000).toFixed(0)}ms` +
+      ` (window=±${(TIMING_WINDOW * 1000).toFixed(0)}ms) arrow.time=${nextOne.time.toFixed(3)}s` +
+      ` press=${time.toFixed(3)}s lag=${lagMs.toFixed(0)}ms skipped=${skipped}` +
+      ` bestCorrectedDiff=${(bestCorrected * 1000).toFixed(0)}ms${verdict}`
+    );
   }
 }
 
@@ -193,6 +261,7 @@ self.onmessage = (e: MessageEvent) => {
       e.data.timing,
       e.data.bpms,
       e.data.stops,
+      e.data.debug,
       e.data.judgmentOffset
     );
   } else if (type === 'startTime') {
@@ -200,10 +269,28 @@ self.onmessage = (e: MessageEvent) => {
     // Fire endSong just after the last arrow has been checked, regardless of
     // whether that last note is a tap or a freeze release.
     setTimeout(() => {
+      if (DEBUG) {
+        const meanOff = dbgHits ? (dbgHitOffSum / dbgHits) * 1000 : 0;
+        const sorted = [...dbgHitOffs].sort((a, b) => a - b);
+        const medianOff = sorted.length ? sorted[Math.floor(sorted.length / 2)] * 1000 : 0;
+        console.log(
+          `[worker] SUMMARY presses=${dbgPresses} hits=${dbgHits}` +
+          ` no-hit(outside-window)=${dbgNoHit} (genuine-early=${dbgEarlyMiss} cascade=${dbgCascadeMiss})` +
+          ` miss-timeouts=${dbgMissTimeouts}`
+        );
+        // Mean/median hit offset: a consistently negative value = you press
+        // earlier than the worker expects, i.e. an audio/visual calibration bias
+        // (not skill). Near 0 = well calibrated; the misses are timing spread.
+        console.log(
+          `[worker] HIT-OFFSET mean=${meanOff >= 0 ? '+' : ''}${meanOff.toFixed(0)}ms` +
+          ` median=${medianOff >= 0 ? '+' : ''}${medianOff.toFixed(0)}ms` +
+          ` (negative = pressing early; |value|>~40ms suggests a calibration offset)`
+        );
+      }
       postMessage({ endSong: true });
     }, lastFireMs + 100);
   } else if (type === 'keyDown') {
-    respondToKey(e.data.timeStamp, e.data.dir as Direction);
+    respondToKey(e.data.timeStamp, e.data.dir as Direction, e.data.lagMs ?? 0);
   } else if (type === 'keyUp') {
     checkIfFreeze(e.data.dir as Direction);
   }
